@@ -15,9 +15,9 @@ namespace SliceX.Models
         public int BottomLayers { get; set; } = 3;
         
         // Build Volume
-        public double BuildVolumeX { get; set; } = 100;
-        public double BuildVolumeY { get; set; } = 100;
-        public double BuildVolumeZ { get; set; } = 150;
+        public double BuildVolumeX { get; set; } = 14.515;
+        public double BuildVolumeY { get; set; } = 8.165;
+        public double BuildVolumeZ { get; set; } = 25.0;
         
         // Lift Settings
         public double LiftHeight { get; set; } = 5;

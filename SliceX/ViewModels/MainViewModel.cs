@@ -237,12 +237,13 @@ namespace SliceX.ViewModels
                     // Add build plate
                     var buildPlate = new BoxVisual3D
                     {
-                        Width = printerSettings.BuildVolumeX,
+                        Width = printerSettings.BuildVolumeX * 0.5,
                         Length = printerSettings.BuildVolumeY,
-                        Height = 2,
-                        Center = new Point3D(0, 0, -1),
+                        Height = 1, // thinner plate
+                        Center = new Point3D(0, 0, -0.5),
                         Fill = new SolidColorBrush(Color.FromArgb(100, 0, 116, 204))
                     };
+
                     Viewport3D.Children.Add(buildPlate);
 
                     // Add build volume wireframe

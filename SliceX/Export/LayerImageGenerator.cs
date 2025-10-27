@@ -13,23 +13,26 @@ namespace SliceX.Export
 {
     public class LayerImageGenerator
     {
-        private const double PIXELS_PER_MM = 10.0;
+        private const double PIXELS_PER_MM = 3.7795275591; // 96 DPI = 96/25.4 pixels per mm
         
         public BitmapSource GenerateLayerImage(Model3D model, double zHeight, PrinterSettings settings)
         {
-            // Use higher resolution for better quality
+            // Calculate dimensions based on build volume
             int imageWidth = (int)(settings.BuildVolumeX * PIXELS_PER_MM);
             int imageHeight = (int)(settings.BuildVolumeY * PIXELS_PER_MM);
             
-            // Ensure reasonable image size
-            imageWidth = Math.Min(Math.Max(imageWidth, 100), 3840);
-            imageHeight = Math.Min(Math.Max(imageHeight, 100), 2160);
+            // Ensure dimensions match exactly 1920x1080 as specified
+            imageWidth = 1920;
+            imageHeight = 1080;
             
-            // Create pixel buffer with white background (typical for resin slicers)
-            byte[] pixels = new byte[imageWidth * imageHeight * 3]; // BGR24 format
-            for (int i = 0; i < pixels.Length; i++)
+            // Create pixel buffer with white background (32-bit ARGB format)
+            byte[] pixels = new byte[imageWidth * imageHeight * 4]; // BGRA32 format for 32-bit depth
+            for (int i = 0; i < pixels.Length; i += 4)
             {
-                pixels[i] = 255; // White background
+                pixels[i] = 255;     // B
+                pixels[i + 1] = 255; // G
+                pixels[i + 2] = 255; // R
+                pixels[i + 3] = 255; // A (fully opaque)
             }
             
             // Get layer contours at this Z height
@@ -40,15 +43,27 @@ namespace SliceX.Export
                 // Fill polygons first
                 FillContours(pixels, imageWidth, imageHeight, contours);
                 
-                // Then draw outlines with anti-aliasing
+                // Then draw outlines
                 foreach (var contour in contours)
                 {
                     DrawContour(pixels, imageWidth, imageHeight, contour);
                 }
             }
             
-            var bitmap = new WriteableBitmap(imageWidth, imageHeight, 96, 96, PixelFormats.Bgr24, null);
-            bitmap.WritePixels(new Int32Rect(0, 0, imageWidth, imageHeight), pixels, imageWidth * 3, 0);
+            // Create bitmap with exact specifications from the image
+            var bitmap = new WriteableBitmap(
+                imageWidth, 
+                imageHeight, 
+                96,  // Horizontal resolution (DPI)
+                96,  // Vertical resolution (DPI)
+                PixelFormats.Bgra32, // 32-bit format
+                null);
+                
+            bitmap.WritePixels(
+                new Int32Rect(0, 0, imageWidth, imageHeight), 
+                pixels, 
+                imageWidth * 4, // Stride for 32-bit (4 bytes per pixel)
+                0);
             
             return bitmap;
         }
@@ -221,9 +236,15 @@ namespace SliceX.Export
         
         private Point WorldToPixel(Point3D worldPoint, PrinterSettings settings)
         {
-            // Center the model in the build volume
-            double pixelX = (worldPoint.X + settings.BuildVolumeX / 2) * PIXELS_PER_MM;
-            double pixelY = (settings.BuildVolumeY / 2 - worldPoint.Y) * PIXELS_PER_MM;
+            // Convert world coordinates to pixel coordinates
+            // Scale to fit within 1920x1080 while maintaining aspect ratio
+            double scaleX = 1920 / settings.BuildVolumeX;
+            double scaleY = 1080 / settings.BuildVolumeY;
+            double scale = Math.Min(scaleX, scaleY) * 0.9; // 90% scale to add some margin
+            
+            // Center the model
+            double pixelX = (worldPoint.X * scale) + (1920 / 2);
+            double pixelY = (1080 / 2) - (worldPoint.Y * scale);
             
             return new Point(pixelX, pixelY);
         }
@@ -264,11 +285,12 @@ namespace SliceX.Export
                     
                     for (int x = startX; x <= endX; x++)
                     {
-                        int index = (y * width + x) * 3;
-                        // Black fill for resin printing
+                        int index = (y * width + x) * 4;
+                        // Black fill with full opacity
                         pixels[index] = 0;     // B
                         pixels[index + 1] = 0; // G
                         pixels[index + 2] = 0; // R
+                        pixels[index + 3] = 255; // A
                     }
                 }
             }
@@ -302,11 +324,12 @@ namespace SliceX.Export
             {
                 if (x0 >= 0 && x0 < width && y0 >= 0 && y0 < height)
                 {
-                    int index = (y0 * width + x0) * 3;
-                    // Black outline
-                    pixels[index] = 0;
-                    pixels[index + 1] = 0;
-                    pixels[index + 2] = 0;
+                    int index = (y0 * width + x0) * 4;
+                    // Black outline with full opacity
+                    pixels[index] = 0;     // B
+                    pixels[index + 1] = 0; // G
+                    pixels[index + 2] = 0; // R
+                    pixels[index + 3] = 255; // A
                 }
                 
                 if (x0 == x1 && y0 == y1) break;
