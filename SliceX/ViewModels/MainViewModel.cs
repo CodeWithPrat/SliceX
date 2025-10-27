@@ -262,8 +262,22 @@ namespace SliceX.ViewModels
                     Viewport3D.Children.Add(boundingBox);
 
                     // Create material for the model
-                    var modelMaterial = MaterialHelper.CreateMaterial(Colors.SteelBlue);
-                    var backMaterial = MaterialHelper.CreateMaterial(Colors.LightSteelBlue);
+                    var modelMaterial = new MaterialGroup();
+
+                    // Base diffuse color (deep PCB green)
+                    var diffuse = new DiffuseMaterial(new SolidColorBrush(Color.FromRgb(0, 80, 0)));
+                    modelMaterial.Children.Add(diffuse);
+
+                    // Add a slight specular shine (for realistic PCB reflection)
+                    var specular = new SpecularMaterial(new SolidColorBrush(Color.FromRgb(50, 200, 50)), 20);
+                    modelMaterial.Children.Add(specular);
+
+                    // Optional: slight emissive tint for subtle glow
+                    var emissive = new EmissiveMaterial(new SolidColorBrush(Color.FromRgb(0, 40, 0)));
+                    modelMaterial.Children.Add(emissive);
+
+                    // Back material (lighter green for contrast)
+                    var backMaterial = new DiffuseMaterial(new SolidColorBrush(Color.FromRgb(0, 100, 0)));
 
                     // Add new model to viewport
                     currentModelVisual = new ModelVisual3D
@@ -276,6 +290,7 @@ namespace SliceX.ViewModels
                         },
                         Transform = CurrentModel.Transform
                     };
+
 
                     Viewport3D.Children.Add(currentModelVisual);
 
