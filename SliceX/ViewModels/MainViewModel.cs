@@ -12,6 +12,9 @@ using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using Microsoft.Win32;
 using System.Linq;
+using SliceX.Export;
+using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace SliceX.ViewModels
 {
@@ -518,64 +521,175 @@ namespace SliceX.ViewModels
         }
 
         [RelayCommand]
-        private void SliceModel()
+private async void SliceModel()
+{
+    if (CurrentModel == null)
+    {
+        MessageBox.Show("Please load a model first.", "No Model",
+            MessageBoxButton.OK, MessageBoxImage.Warning);
+        return;
+    }
+
+    try
+    {
+        StatusMessage = "Slicing model...";
+
+        if (PrinterSettings.LayerThickness <= 0 || PrinterSettings.LayerThickness > 1)
         {
-            if (CurrentModel == null)
-            {
-                MessageBox.Show("Please load a model first.", "No Model",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+            MessageBox.Show("Layer thickness must be between 0.01 and 1.0 mm",
+                "Invalid Settings", MessageBoxButton.OK, MessageBoxImage.Warning);
+            StatusMessage = "Invalid layer thickness";
+            return;
+        }
 
-            try
-            {
-                StatusMessage = "Slicing model...";
+        // Perform slicing
+        var sliceResult = slicingEngine.SliceModel(CurrentModel, PrinterSettings);
 
-                if (PrinterSettings.LayerThickness <= 0 || PrinterSettings.LayerThickness > 1)
+        StatusMessage = $"Slicing complete: {sliceResult.Layers.Count} layers generated";
+
+        // Ask user if they want to export
+        var result = MessageBox.Show(
+            $"Slicing completed successfully!\n\n" +
+            $"Layers: {sliceResult.Layers.Count}\n" +
+            $"Print Time: {sliceResult.PrintTime:F1} minutes\n" +
+            $"Exposure Time: {sliceResult.TotalExposureTime:F0}s\n" +
+            $"Lift Time: {sliceResult.TotalLiftTime:F0}s\n" +
+            $"Model Height: {CurrentModel.Size.Z:F2} mm\n" +
+            $"Layer Thickness: {PrinterSettings.LayerThickness:F3} mm\n" +
+            $"Estimated Resin: {sliceResult.EstimatedResinVolume:F1} ml\n" +
+            $"Estimated Cost: ${sliceResult.EstimatedCost:F2}\n\n" +
+            $"Do you want to export G-code and layer images to a ZIP file?",
+            "Slicing Complete",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (result == MessageBoxResult.Yes)
+        {
+            // Show save dialog
+            var saveDialog = new SaveFileDialog
+            {
+                Filter = "ZIP Archive (*.zip)|*.zip",
+                FileName = $"{Path.GetFileNameWithoutExtension(CurrentModel.FileName)}_sliced.zip",
+                Title = "Save Sliced Output"
+            };
+
+            if (saveDialog.ShowDialog() == true)
+            {
+                // Create progress window
+                var progressWindow = new Window
                 {
-                    MessageBox.Show("Layer thickness must be between 0.01 and 1.0 mm",
-                        "Invalid Settings", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    StatusMessage = "Invalid layer thickness";
-                    return;
+                    Title = "Exporting...",
+                    Width = 400,
+                    Height = 150,
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                    ResizeMode = ResizeMode.NoResize,
+                    Background = new SolidColorBrush(Color.FromRgb(30, 30, 30))
+                };
+
+                var stackPanel = new StackPanel
+                {
+                    Margin = new Thickness(20)
+                };
+
+                var statusText = new TextBlock
+                {
+                    Text = "Generating G-code and layer images...",
+                    Foreground = Brushes.White,
+                    FontSize = 14,
+                    Margin = new Thickness(0, 0, 0, 10)
+                };
+
+                var progressBar = new System.Windows.Controls.ProgressBar
+                {
+                    Height = 25,
+                    Minimum = 0,
+                    Maximum = 100,
+                    Value = 0
+                };
+
+                var progressText = new TextBlock
+                {
+                    Text = "0%",
+                    Foreground = Brushes.White,
+                    FontSize = 12,
+                    Margin = new Thickness(0, 10, 0, 0),
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+
+                stackPanel.Children.Add(statusText);
+                stackPanel.Children.Add(progressBar);
+                stackPanel.Children.Add(progressText);
+                progressWindow.Content = stackPanel;
+
+                progressWindow.Show();
+
+                try
+                {
+                    StatusMessage = "Exporting to ZIP...";
+
+                    // Export in background
+                    var exporter = new SliceExporter();
+                    var progress = new Progress<int>(percent =>
+                    {
+                        progressBar.Value = percent;
+                        progressText.Text = $"{percent}%";
+                        statusText.Text = percent < 100 
+                            ? $"Generating layer images... ({percent}%)" 
+                            : "Finalizing ZIP file...";
+                    });
+
+                    await Task.Run(() =>
+                    {
+                        exporter.ExportToZip(CurrentModel, sliceResult, PrinterSettings, 
+                                            saveDialog.FileName, progress);
+                    });
+
+                    progressWindow.Close();
+
+                    StatusMessage = "Export complete!";
+                    MessageBox.Show(
+                        $"Export completed successfully!\n\n" +
+                        $"Output saved to:\n{saveDialog.FileName}\n\n" +
+                        $"The ZIP contains:\n" +
+                        $"• output.gcode - G-code file\n" +
+                        $"• layers/ - {sliceResult.TotalLayers} layer images\n" +
+                        $"• metadata.txt - Print information",
+                        "Export Complete",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
                 }
-
-                var sliceResult = slicingEngine.SliceModel(CurrentModel, PrinterSettings);
-
-                StatusMessage = $"Slicing complete: {sliceResult.Layers.Count} layers generated";
-
-                MessageBox.Show($"Slicing completed successfully!\n\n" +
-                    $"Layers: {sliceResult.Layers.Count}\n" +
-                    $"Print Time: {sliceResult.PrintTime:F1} minutes\n" +
-                    $"Exposure Time: {sliceResult.TotalExposureTime:F0}s\n" +
-                    $"Lift Time: {sliceResult.TotalLiftTime:F0}s\n" +
-                    $"Model Height: {CurrentModel.Size.Z:F2} mm\n" +
-                    $"Layer Thickness: {PrinterSettings.LayerThickness:F3} mm\n" +
-                    $"Estimated Resin: {sliceResult.EstimatedResinVolume:F1} ml\n" +
-                    $"Estimated Cost: ${sliceResult.EstimatedCost:F2}",
-                    "Slicing Complete",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (OutOfMemoryException)
-            {
-                MessageBox.Show("Out of memory error during slicing.\n\n" +
-                    "Try increasing the layer thickness or reducing the model size.",
-                    "Memory Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                StatusMessage = "Slicing failed - Out of memory";
-            }
-            catch (InvalidOperationException ex)
-            {
-                MessageBox.Show(ex.Message, "Slicing Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                StatusMessage = "Slicing failed";
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error during slicing: {ex.Message}", "Slicing Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                StatusMessage = "Slicing failed";
+                catch (Exception ex)
+                {
+                    progressWindow.Close();
+                    MessageBox.Show($"Error during export: {ex.Message}", "Export Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    StatusMessage = "Export failed";
+                }
             }
         }
+    }
+    catch (OutOfMemoryException)
+    {
+        MessageBox.Show("Out of memory error during slicing.\n\n" +
+            "Try increasing the layer thickness or reducing the model size.",
+            "Memory Error",
+            MessageBoxButton.OK, MessageBoxImage.Error);
+        StatusMessage = "Slicing failed - Out of memory";
+    }
+    catch (InvalidOperationException ex)
+    {
+        MessageBox.Show(ex.Message, "Slicing Error",
+            MessageBoxButton.OK, MessageBoxImage.Error);
+        StatusMessage = "Slicing failed";
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Error during slicing: {ex.Message}", "Slicing Error",
+            MessageBoxButton.OK, MessageBoxImage.Error);
+        StatusMessage = "Slicing failed";
+    }
+}
+
 
         [RelayCommand]
         private void SaveProfile()

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media.Media3D;
 using Model3D = SliceX.Models.Model3D;
+using SliceX.Export;
 
 
 namespace SliceX.Slicer
@@ -203,9 +204,18 @@ namespace SliceX.Slicer
             // Create a more realistic placeholder image size
             int width = Math.Max(100, Math.Min((int)(settings.BuildVolumeX * 50), 3840));
             int height = Math.Max(100, Math.Min((int)(settings.BuildVolumeY * 50), 3840));
-            
+
             // Return empty array for now (in real implementation, this would contain actual slice data)
             return new byte[width * height / 8]; // Approximate size for bitmap
+        }
+        
+        private byte[] GenerateLayerImage(PrinterSettings settings, int layerIndex, int totalLayers, Model3D model)
+        {
+            var generator = new LayerImageGenerator();
+            double zHeight = layerIndex * settings.LayerThickness;
+            
+            var bitmap = generator.GenerateLayerImage(model, zHeight, settings);
+            return generator.BitmapToByteArray(bitmap);
         }
     }
 }

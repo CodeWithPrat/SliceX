@@ -33,3 +33,4 @@ C:\Users\SMDDC-02\Documents\GitHub\SliceX\SliceX\obj\Debug\net9.0-windows\refint
 C:\Users\SMDDC-02\Documents\GitHub\SliceX\SliceX\obj\Debug\net9.0-windows\SliceX.pdb
 C:\Users\SMDDC-02\Documents\GitHub\SliceX\SliceX\obj\Debug\net9.0-windows\SliceX.genruntimeconfig.cache
 C:\Users\SMDDC-02\Documents\GitHub\SliceX\SliceX\obj\Debug\net9.0-windows\ref\SliceX.dll
+C:\Users\SMDDC-02\Documents\GitHub\SliceX\SliceX\obj\Debug\net9.0-windows\SliceX.sourcelink.json
