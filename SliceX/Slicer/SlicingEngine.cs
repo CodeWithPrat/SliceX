@@ -6,7 +6,6 @@ using System.Windows.Media.Media3D;
 using Model3D = SliceX.Models.Model3D;
 using SliceX.Export;
 
-
 namespace SliceX.Slicer
 {
     public class SliceResult
@@ -47,7 +46,7 @@ namespace SliceX.Slicer
                 throw new InvalidOperationException($"Model height ({modelHeight:F2}mm) exceeds build volume height ({settings.BuildVolumeZ}mm). Please scale down the model.");
             }
 
-            // FIXED: Calculate layer count properly using ceiling
+            // Calculate layer count properly using ceiling
             int layerCount = CalculateLayerCount(modelHeight, settings.LayerThickness);
             
             if (layerCount > 10000)
@@ -58,26 +57,19 @@ namespace SliceX.Slicer
             double totalExposureTime = 0;
             double totalLiftTime = 0;
             
+            // FIXED: Use the actual layer image generation instead of placeholder
             for (int i = 0; i < layerCount; i++)
             {
-                double currentZ = i * settings.LayerThickness;
                 bool isBottomLayer = i < settings.BottomLayers;
                 
-                double exposureTime = isBottomLayer ? settings.BottomExposureTime : settings.ExposureTime;
-                double layerTime = exposureTime + CalculateMovementTime(settings, isBottomLayer);
+                // Create actual slice layer with generated image
+                var layer = GenerateActualLayer(model, settings, i, isBottomLayer);
                 
-                totalExposureTime += exposureTime;
+                double layerTime = layer.ExposureTime + CalculateMovementTime(settings, isBottomLayer);
+                
+                totalExposureTime += layer.ExposureTime;
                 totalLiftTime += CalculateMovementTime(settings, isBottomLayer);
 
-                var layer = new SliceLayer
-                {
-                    LayerNumber = i + 1,
-                    ZHeight = currentZ,
-                    ExposureTime = exposureTime,
-                    IsBottomLayer = isBottomLayer,
-                    ImageData = GeneratePlaceholderImage(settings)
-                };
-                
                 result.Layers.Add(layer);
             }
 
@@ -93,6 +85,28 @@ namespace SliceX.Slicer
             return result;
         }
 
+        /// <summary>
+        /// Creates a slice layer with actual generated image data
+        /// </summary>
+        private SliceLayer GenerateActualLayer(Model3D model, PrinterSettings settings, int layerIndex, bool isBottomLayer)
+        {
+            var generator = new LayerImageGenerator();
+            double zHeight = layerIndex * settings.LayerThickness;
+            
+            var bitmap = generator.GenerateLayerImage(model, zHeight, settings);
+            var imageData = generator.BitmapToByteArray(bitmap);
+            
+            double exposureTime = isBottomLayer ? settings.BottomExposureTime : settings.ExposureTime;
+            
+            return new SliceLayer
+            {
+                LayerNumber = layerIndex + 1,
+                ZHeight = zHeight,
+                ExposureTime = exposureTime,
+                IsBottomLayer = isBottomLayer,
+                ImageData = imageData
+            };
+        }
         /// <summary>
         /// Calculate actual model height considering transformations
         /// </summary>
@@ -130,7 +144,7 @@ namespace SliceX.Slicer
         }
 
         /// <summary>
-        /// FIXED: Calculate layer count using ceiling (matches Chitubox/Lychee behavior)
+        /// Calculate layer count using ceiling (matches Chitubox/Lychee behavior)
         /// This ensures we capture the entire model height
         /// </summary>
         private int CalculateLayerCount(double modelHeight, double layerThickness)
@@ -199,23 +213,7 @@ namespace SliceX.Slicer
             return solidVolume * hollowFactor;
         }
 
-        private byte[] GeneratePlaceholderImage(PrinterSettings settings)
-        {
-            // Create a more realistic placeholder image size
-            int width = Math.Max(100, Math.Min((int)(settings.BuildVolumeX * 50), 3840));
-            int height = Math.Max(100, Math.Min((int)(settings.BuildVolumeY * 50), 3840));
-
-            // Return empty array for now (in real implementation, this would contain actual slice data)
-            return new byte[width * height / 8]; // Approximate size for bitmap
-        }
-        
-        private byte[] GenerateLayerImage(PrinterSettings settings, int layerIndex, int totalLayers, Model3D model)
-        {
-            var generator = new LayerImageGenerator();
-            double zHeight = layerIndex * settings.LayerThickness;
-            
-            var bitmap = generator.GenerateLayerImage(model, zHeight, settings);
-            return generator.BitmapToByteArray(bitmap);
-        }
+        // Remove the old GeneratePlaceholderImage method since we're now using actual layer images
+        // private byte[] GeneratePlaceholderImage(PrinterSettings settings) { ... }
     }
 }
