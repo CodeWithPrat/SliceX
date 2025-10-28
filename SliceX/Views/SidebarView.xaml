@@ -1,0 +1,199 @@
+<UserControl x:Class="SliceX.Views.SidebarView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="400"
+             Background="#252526">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="15">
+
+            <!-- File Menu -->
+            <GroupBox Header="📁 File" Margin="0,0,0,15" Foreground="White" BorderBrush="#3f3f46">
+                <StackPanel>
+                    <Button Content="Load Model" Command="{Binding LoadModelCommand}" 
+                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
+                    <Button Content="Save Profile" Command="{Binding SaveProfileCommand}" 
+                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
+                    <Button Content="Load Profile" Command="{Binding LoadProfileCommand}" 
+                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
+                    <Button Content="Estimate Volume and Cost" Command="{Binding EstimateVolumeCommand}" 
+                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
+                    <Button Content="Preferences" Command="{Binding ShowPreferencesCommand}" 
+                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
+                    <Button Content="Exit" Command="{Binding ExitCommand}" 
+                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- View Menu -->
+            <GroupBox Header="👁️ View" Margin="0,0,0,15" Foreground="White" BorderBrush="#3f3f46">
+                <UniformGrid Rows="2" Columns="2" Margin="5">
+                    <Button Content="TOP" Command="{Binding TopViewCommand}" 
+                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
+                    <Button Content="FRONT" Command="{Binding FrontViewCommand}" 
+                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
+                    <Button Content="LEFT" Command="{Binding SideViewCommand}" 
+                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
+                    <Button Content="RESET" Command="{Binding ResetViewCommand}" 
+                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
+                </UniformGrid>
+            </GroupBox>
+
+            <!-- Transformation Tabs -->
+            <GroupBox Header="🛠️ Transformations" Margin="0,0,0,15" Foreground="White" BorderBrush="#3f3f46">
+                <TabControl SelectedIndex="{Binding SelectedTabIndex}">
+
+                    <!-- Move Tab -->
+                    <TabItem Header="Move" Style="{StaticResource ModernTabItem}">
+                        <StackPanel Margin="5">
+                            <StackPanel Orientation="Horizontal" Margin="0,5">
+                                <Button Content="Center" Command="{Binding CenterModelCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
+                                <Button Content="Place on Platform" Command="{Binding PlaceOnPlatformCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Move Step (mm):" Foreground="#e0e0e0" Margin="5,10,5,2"/>
+                            <TextBox Text="{Binding MoveStep}" Style="{StaticResource ModernTextBox}" Margin="5,0,5,10"/>
+
+                            <TextBlock Text="X Axis:" FontWeight="Bold" Foreground="#00d4ff" Margin="5,5,5,2"/>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <Button Content="X-" Command="{Binding MoveXMinusCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
+                                <TextBlock Text="{Binding MoveStep, StringFormat={}{0} mm}" Foreground="White" 
+                                           VerticalAlignment="Center" Margin="10,0"/>
+                                <Button Content="X+" Command="{Binding MoveXPlusCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Y Axis:" FontWeight="Bold" Foreground="#00d4ff" Margin="5,10,5,2"/>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <Button Content="Y-" Command="{Binding MoveYMinusCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
+                                <TextBlock Text="{Binding MoveStep, StringFormat={}{0} mm}" Foreground="White" 
+                                           VerticalAlignment="Center" Margin="10,0"/>
+                                <Button Content="Y+" Command="{Binding MoveYPlusCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Z Axis:" FontWeight="Bold" Foreground="#00d4ff" Margin="5,10,5,2"/>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <Button Content="Z-" Command="{Binding MoveZMinusCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
+                                <TextBlock Text="{Binding MoveStep, StringFormat={}{0} mm}" Foreground="White" 
+                                           VerticalAlignment="Center" Margin="10,0"/>
+                                <Button Content="Z+" Command="{Binding MoveZPlusCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </TabItem>
+
+                    <!-- Rotate Tab -->
+                    <TabItem Header="Rotate" Style="{StaticResource ModernTabItem}">
+                        <StackPanel Margin="5">
+                            <TextBlock Text="Rotate Step (°):" Foreground="#e0e0e0" Margin="5,5,5,2"/>
+                            <TextBox Text="{Binding RotateStep}" Style="{StaticResource ModernTextBox}" Margin="5,0,5,10"/>
+
+                            <TextBlock Text="X Axis:" FontWeight="Bold" Foreground="#00d4ff" Margin="5,5,5,2"/>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <Button Content="X-" Command="{Binding RotateXMinusCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
+                                <TextBlock Text="{Binding RotateStep, StringFormat={}{0}°}" Foreground="White" 
+                                           VerticalAlignment="Center" Margin="10,0"/>
+                                <Button Content="X+" Command="{Binding RotateXPlusCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Y Axis:" FontWeight="Bold" Foreground="#00d4ff" Margin="5,10,5,2"/>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <Button Content="Y-" Command="{Binding RotateYMinusCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
+                                <TextBlock Text="{Binding RotateStep, StringFormat={}{0}°}" Foreground="White" 
+                                           VerticalAlignment="Center" Margin="10,0"/>
+                                <Button Content="Y+" Command="{Binding RotateYPlusCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Z Axis:" FontWeight="Bold" Foreground="#00d4ff" Margin="5,10,5,2"/>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <Button Content="Z-" Command="{Binding RotateZMinusCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
+                                <TextBlock Text="{Binding RotateStep, StringFormat={}{0}°}" Foreground="White" 
+                                           VerticalAlignment="Center" Margin="10,0"/>
+                                <Button Content="Z+" Command="{Binding RotateZPlusCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </TabItem>
+
+                    <!-- Scale Tab -->
+                    <TabItem Header="Scale" Style="{StaticResource ModernTabItem}">
+                        <StackPanel Margin="5">
+                            <TextBlock Text="Uniform Scale:" FontWeight="Bold" Foreground="#00d4ff" Margin="5,5,5,2"/>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <TextBox Text="{Binding ScaleValue}" Width="60" Style="{StaticResource ModernTextBox}" 
+                                         VerticalAlignment="Center"/>
+                                <Button Content="Scale" Command="{Binding ScaleUniformCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="10,0,0,0" Padding="15,8"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Individual Axis Scaling:" FontWeight="Bold" Foreground="#00d4ff" Margin="5,15,5,5"/>
+
+                            <TextBlock Text="X Scale:" Foreground="#e0e0e0" Margin="5,5,5,2"/>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <TextBox Text="{Binding ScaleX}" Width="60" Style="{StaticResource ModernTextBox}" 
+                                         VerticalAlignment="Center"/>
+                                <Button Content="Scale X" Command="{Binding ScaleXAxisCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="10,0,0,0" Padding="10,5"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Y Scale:" Foreground="#e0e0e0" Margin="5,5,5,2"/>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <TextBox Text="{Binding ScaleY}" Width="60" Style="{StaticResource ModernTextBox}" 
+                                         VerticalAlignment="Center"/>
+                                <Button Content="Scale Y" Command="{Binding ScaleYAxisCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="10,0,0,0" Padding="10,5"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Z Scale:" Foreground="#e0e0e0" Margin="5,5,5,2"/>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <TextBox Text="{Binding ScaleZ}" Width="60" Style="{StaticResource ModernTextBox}" 
+                                         VerticalAlignment="Center"/>
+                                <Button Content="Scale Z" Command="{Binding ScaleZAxisCommand}" 
+                                        Style="{StaticResource ModernButton}" Margin="10,0,0,0" Padding="10,5"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </TabItem>
+
+                    <!-- View Tab -->
+                    <TabItem Header="View" Style="{StaticResource ModernTabItem}">
+                        <StackPanel Margin="5">
+                            <TextBlock Text="Mouse Sensitivity:" FontWeight="Bold" Foreground="#00d4ff" Margin="0,0,0,5"/>
+                            
+                            <TextBlock Text="Rotation Sensitivity:" Foreground="#e0e0e0" FontSize="11" Margin="0,2"/>
+                            <Slider Value="{Binding RotationSensitivity}" Minimum="0.1" Maximum="3.0" 
+                                    TickFrequency="0.1" IsSnapToTickEnabled="True" Margin="0,2"/>
+
+                            <TextBlock Text="Pan Sensitivity:" Foreground="#e0e0e0" FontSize="11" Margin="0,5,0,2"/>
+                            <Slider Value="{Binding PanSensitivity}" Minimum="0.1" Maximum="3.0" 
+                                    TickFrequency="0.1" IsSnapToTickEnabled="True" Margin="0,2"/>
+
+                            <TextBlock Text="Zoom Sensitivity:" Foreground="#e0e0e0" FontSize="11" Margin="0,5,0,2"/>
+                            <Slider Value="{Binding ZoomSensitivity}" Minimum="0.1" Maximum="3.0" 
+                                    TickFrequency="0.1" IsSnapToTickEnabled="True" Margin="0,2"/>
+                        </StackPanel>
+                    </TabItem>
+                </TabControl>
+            </GroupBox>
+
+            <!-- Slice Button -->
+            <Button Content="🔪 SLICE MODEL" Command="{Binding SliceModelCommand}" 
+                    IsEnabled="{Binding IsModelLoaded}" Style="{StaticResource PrimaryButton}" 
+                    Padding="20,12" Margin="5" FontSize="14" FontWeight="Bold"/>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

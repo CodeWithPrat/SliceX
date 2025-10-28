@@ -1,143 +1,66 @@
-﻿<!-- MainWindow.xaml -->
-<Window x:Class="SliceX.Views.MainWindow"
+﻿<Window x:Class="SliceX.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:h="http://helix-toolkit.org/wpf"
+        xmlns:views="clr-namespace:SliceX.Views"
         xmlns:vm="clr-namespace:SliceX.ViewModels"
         Title="SliceX - 3D Printing Software"
         Height="900"
-        Width="1400"
+        Width="1600"
         WindowStartupLocation="CenterScreen"
         Background="#1e1e1e">
 
     <Window.Resources>
         <!-- Modern Button Style -->
-        <Style x:Key="ModernButton"
-               TargetType="Button">
-            <Setter Property="Background"
-                    Value="#2d2d30"/>
-            <Setter Property="Foreground"
-                    Value="White"/>
-            <Setter Property="BorderThickness"
-                    Value="0"/>
-            <Setter Property="Padding"
-                    Value="12,6"/>
-            <Setter Property="Cursor"
-                    Value="Hand"/>
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Background" Value="#2d2d30"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                CornerRadius="3"
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="3" 
                                 Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center"
+                            <ContentPresenter HorizontalAlignment="Center" 
                                               VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
-                <Trigger Property="IsMouseOver"
-                         Value="True">
-                    <Setter Property="Background"
-                            Value="#3e3e42"/>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#3e3e42"/>
                 </Trigger>
-                <Trigger Property="IsPressed"
-                         Value="True">
-                    <Setter Property="Background"
-                            Value="#007ACC"/>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#007ACC"/>
                 </Trigger>
-                <Trigger Property="IsEnabled"
-                         Value="False">
-                    <Setter Property="Opacity"
-                            Value="0.5"/>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.5"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
-        <!-- Primary Button Style -->
-        <Style x:Key="PrimaryButton"
-               TargetType="Button"
-               BasedOn="{StaticResource ModernButton}">
-            <Setter Property="Background"
-                    Value="#007ACC"/>
-            <Setter Property="FontWeight"
-                    Value="Bold"/>
+        <!-- Navigation Button Style -->
+        <Style x:Key="NavButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="20,10"/>
             <Style.Triggers>
-                <Trigger Property="IsMouseOver"
-                         Value="True">
-                    <Setter Property="Background"
-                            Value="#1C97EA"/>
+                <Trigger Property="IsEnabled" Value="True">
+                    <Setter Property="Background" Value="#007ACC"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <!-- Modern TextBox Style -->
-        <Style x:Key="ModernTextBox"
-               TargetType="TextBox">
-            <Setter Property="Background"
-                    Value="#2d2d30"/>
-            <Setter Property="Foreground"
-                    Value="White"/>
-            <Setter Property="BorderBrush"
-                    Value="#3f3f46"/>
-            <Setter Property="BorderThickness"
-                    Value="1"/>
-            <Setter Property="Padding"
-                    Value="8,4"/>
-            <Setter Property="CaretBrush"
-                    Value="White"/>
-        </Style>
-
-        <!-- Tab Control Style -->
-        <Style x:Key="ModernTabControl"
-               TargetType="TabControl">
-            <Setter Property="Background"
-                    Value="#252526"/>
-            <Setter Property="BorderThickness"
-                    Value="0"/>
-        </Style>
-
-        <Style x:Key="ModernTabItem"
-               TargetType="TabItem">
-            <Setter Property="Background"
-                    Value="#2d2d30"/>
-            <Setter Property="Foreground"
-                    Value="White"/>
-            <Setter Property="BorderThickness"
-                    Value="0"/>
-            <Setter Property="Padding"
-                    Value="15,8"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TabItem">
-                        <Border Name="Border"
-                                Background="{TemplateBinding Background}"
-                                BorderThickness="0"
-                                CornerRadius="3,3,0,0">
-                            <ContentPresenter x:Name="ContentSite"
-                                              VerticalAlignment="Center"
-                                              HorizontalAlignment="Center"
-                                              ContentSource="Header"
-                                              Margin="10,2"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected"
-                                     Value="True">
-                                <Setter TargetName="Border"
-                                        Property="Background"
-                                        Value="#007ACC"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver"
-                                     Value="True">
-                                <Setter TargetName="Border"
-                                        Property="Background"
-                                        Value="#3e3e42"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="#2d2d30"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#3f3f46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="CaretBrush" Value="White"/>
         </Style>
     </Window.Resources>
 
@@ -146,765 +69,45 @@
     </Window.DataContext>
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="400"/>
-            <ColumnDefinition Width="5"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-        <!-- Left Panel - Controls -->
-        <DockPanel Grid.Column="0"
-                   Background="#252526">
+        <!-- Top Navigation Bar -->
+        <Border Grid.Row="0" Background="#252526" BorderBrush="#3f3f46" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+                <Button Content="🖥️ 3D View" Command="{Binding NavigateTo3DViewCommand}" 
+                        Style="{StaticResource NavButton}" Margin="5,0"/>
+                <Button Content="💻 GCode" Command="{Binding NavigateToGCodeCommand}" 
+                        Style="{StaticResource NavButton}" Margin="5,0"/>
+                <Button Content="👁️ Slice Viewer" Command="{Binding NavigateToSliceViewerCommand}" 
+                        Style="{StaticResource NavButton}" Margin="5,0"/>
+                <Button Content="⚙️ Machine Control" Command="{Binding NavigateToMachineControlCommand}" 
+                        Style="{StaticResource NavButton}" Margin="5,0"/>
+                <Button Content="🔧 Machine Config" Command="{Binding NavigateToMachineConfigCommand}" 
+                        Style="{StaticResource NavButton}" Margin="5,0"/>
+                <Button Content="⚡ Slice Profile" Command="{Binding NavigateToSliceProfileCommand}" 
+                        Style="{StaticResource NavButton}" Margin="5,0"/>
+            </StackPanel>
+        </Border>
 
-            <!-- Menu Bar -->
-            <Menu DockPanel.Dock="Top"
-                  Background="#2d2d30"
-                  Foreground="White">
-                <MenuItem Header="File"
-                          Foreground="White">
-                    <MenuItem Header="Load Model"
-                              Command="{Binding LoadModelCommand}"/>
-                    <Separator/>
-                    <MenuItem Header="Save Profile"
-                              Command="{Binding SaveProfileCommand}"/>
-                    <MenuItem Header="Load Profile"
-                              Command="{Binding LoadProfileCommand}"/>
-                </MenuItem>
-                <MenuItem Header="View"
-                          Foreground="White">
-                    <MenuItem Header="Reset View"
-                              Command="{Binding ResetViewCommand}"/>
-                    <MenuItem Header="Top View"
-                              Command="{Binding TopViewCommand}"/>
-                    <MenuItem Header="Front View"
-                              Command="{Binding FrontViewCommand}"/>
-                    <MenuItem Header="Side View"
-                              Command="{Binding SideViewCommand}"/>
-                </MenuItem>
-            </Menu>
+        <!-- Main Content Area -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="400"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-            <!-- Status Bar -->
-            <StatusBar DockPanel.Dock="Bottom"
-                       Background="#007ACC">
-                <StatusBarItem>
-                    <TextBlock Text="{Binding StatusMessage}"
-                               Foreground="White"
-                               FontWeight="Medium"/>
-                </StatusBarItem>
-            </StatusBar>
+            <!-- Left Sidebar - Fixed -->
+            <views:SidebarView Grid.Column="0" DataContext="{Binding}"/>
 
-            <!-- Main Controls -->
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="15">
+            <!-- Splitter -->
+            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Width="5" Background="#3f3f46"/>
 
-                    <!-- Model Info -->
-                    <GroupBox Header="📁 Model Information"
-                              Margin="0,0,0,15"
-                              Foreground="White"
-                              BorderBrush="#3f3f46">
-                        <StackPanel>
-                            <TextBlock Text="{Binding CurrentModel.FileName, StringFormat='File: {0}'}"
-                                       Margin="5"
-                                       TextWrapping="Wrap"
-                                       Foreground="#e0e0e0"/>
-                            <TextBlock Text="{Binding CurrentModel.Size, StringFormat='Size: {0:F2} × {1:F2} × {2:F2} mm'}"
-                                       Margin="5"
-                                       Foreground="#e0e0e0"/>
-                            <TextBlock Text="{Binding CurrentModel.Center, StringFormat='Center: {0:F2}, {1:F2}, {2:F2}'}"
-                                       Margin="5"
-                                       Foreground="#e0e0e0"/>
-                            <Button Content="📁 Load 3D Model"
-                                    Command="{Binding LoadModelCommand}"
-                                    Style="{StaticResource PrimaryButton}"
-                                    Margin="5,10,5,5"
-                                    Padding="15,8"/>
-                        </StackPanel>
-                    </GroupBox>
-
-                    <!-- Transformation Tabs -->
-                    <GroupBox Header="🛠️ Transformations"
-                              Margin="0,0,0,15"
-                              Foreground="White"
-                              BorderBrush="#3f3f46">
-                        <TabControl Style="{StaticResource ModernTabControl}"
-                                    SelectedIndex="{Binding SelectedTabIndex}">
-
-                            <!-- Move Tab -->
-                            <TabItem Header="Move"
-                                     Style="{StaticResource ModernTabItem}">
-                                <StackPanel Margin="5">
-                                    <StackPanel Orientation="Horizontal"
-                                                Margin="0,5">
-                                        <Button Content="Center"
-                                                Command="{Binding CenterModelCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="10,5"/>
-                                        <Button Content="Place on Platform"
-                                                Command="{Binding PlaceOnPlatformCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="10,5"/>
-                                    </StackPanel>
-
-                                    <TextBlock Text="Move Step (mm):"
-                                               Foreground="#e0e0e0"
-                                               Margin="5,10,5,2"/>
-                                    <TextBox Text="{Binding MoveStep}"
-                                             Style="{StaticResource ModernTextBox}"
-                                             Margin="5,0,5,10"/>
-
-                                    <TextBlock Text="X Axis:"
-                                               FontWeight="Bold"
-                                               Foreground="#00d4ff"
-                                               Margin="5,5,5,2"/>
-                                    <StackPanel Orientation="Horizontal"
-                                                Margin="5">
-                                        <Button Content="X-"
-                                                Command="{Binding MoveXMinusCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="15,8"/>
-                                        <TextBlock Text="{Binding MoveStep, StringFormat={}{0} mm}"
-                                                   Foreground="White"
-                                                   VerticalAlignment="Center"
-                                                   Margin="10,0"/>
-                                        <Button Content="X+"
-                                                Command="{Binding MoveXPlusCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="15,8"/>
-                                    </StackPanel>
-
-                                    <TextBlock Text="Y Axis:"
-                                               FontWeight="Bold"
-                                               Foreground="#00d4ff"
-                                               Margin="5,10,5,2"/>
-                                    <StackPanel Orientation="Horizontal"
-                                                Margin="5">
-                                        <Button Content="Y-"
-                                                Command="{Binding MoveYMinusCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="15,8"/>
-                                        <TextBlock Text="{Binding MoveStep, StringFormat={}{0} mm}"
-                                                   Foreground="White"
-                                                   VerticalAlignment="Center"
-                                                   Margin="10,0"/>
-                                        <Button Content="Y+"
-                                                Command="{Binding MoveYPlusCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="15,8"/>
-                                    </StackPanel>
-
-                                    <TextBlock Text="Z Axis:"
-                                               FontWeight="Bold"
-                                               Foreground="#00d4ff"
-                                               Margin="5,10,5,2"/>
-                                    <StackPanel Orientation="Horizontal"
-                                                Margin="5">
-                                        <Button Content="Z-"
-                                                Command="{Binding MoveZMinusCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="15,8"/>
-                                        <TextBlock Text="{Binding MoveStep, StringFormat={}{0} mm}"
-                                                   Foreground="White"
-                                                   VerticalAlignment="Center"
-                                                   Margin="10,0"/>
-                                        <Button Content="Z+"
-                                                Command="{Binding MoveZPlusCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="15,8"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </TabItem>
-
-                            <!-- Rotate Tab -->
-                            <TabItem Header="Rotate"
-                                     Style="{StaticResource ModernTabItem}">
-                                <StackPanel Margin="5">
-                                    <TextBlock Text="Rotate Step (°):"
-                                               Foreground="#e0e0e0"
-                                               Margin="5,5,5,2"/>
-                                    <TextBox Text="{Binding RotateStep}"
-                                             Style="{StaticResource ModernTextBox}"
-                                             Margin="5,0,5,10"/>
-
-                                    <TextBlock Text="X Axis:"
-                                               FontWeight="Bold"
-                                               Foreground="#00d4ff"
-                                               Margin="5,5,5,2"/>
-                                    <StackPanel Orientation="Horizontal"
-                                                Margin="5">
-                                        <Button Content="X-"
-                                                Command="{Binding RotateXMinusCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="15,8"/>
-                                        <TextBlock Text="{Binding RotateStep, StringFormat={}{0}°}"
-                                                   Foreground="White"
-                                                   VerticalAlignment="Center"
-                                                   Margin="10,0"/>
-                                        <Button Content="X+"
-                                                Command="{Binding RotateXPlusCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="15,8"/>
-                                    </StackPanel>
-
-                                    <TextBlock Text="Y Axis:"
-                                               FontWeight="Bold"
-                                               Foreground="#00d4ff"
-                                               Margin="5,10,5,2"/>
-                                    <StackPanel Orientation="Horizontal"
-                                                Margin="5">
-                                        <Button Content="Y-"
-                                                Command="{Binding RotateYMinusCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="15,8"/>
-                                        <TextBlock Text="{Binding RotateStep, StringFormat={}{0}°}"
-                                                   Foreground="White"
-                                                   VerticalAlignment="Center"
-                                                   Margin="10,0"/>
-                                        <Button Content="Y+"
-                                                Command="{Binding RotateYPlusCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="15,8"/>
-                                    </StackPanel>
-
-                                    <TextBlock Text="Z Axis:"
-                                               FontWeight="Bold"
-                                               Foreground="#00d4ff"
-                                               Margin="5,10,5,2"/>
-                                    <StackPanel Orientation="Horizontal"
-                                                Margin="5">
-                                        <Button Content="Z-"
-                                                Command="{Binding RotateZMinusCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="15,8"/>
-                                        <TextBlock Text="{Binding RotateStep, StringFormat={}{0}°}"
-                                                   Foreground="White"
-                                                   VerticalAlignment="Center"
-                                                   Margin="10,0"/>
-                                        <Button Content="Z+"
-                                                Command="{Binding RotateZPlusCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="15,8"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </TabItem>
-
-                            <!-- Scale Tab -->
-                            <TabItem Header="Scale"
-                                     Style="{StaticResource ModernTabItem}">
-                                <StackPanel Margin="5">
-                                    <TextBlock Text="Uniform Scale:"
-                                               FontWeight="Bold"
-                                               Foreground="#00d4ff"
-                                               Margin="5,5,5,2"/>
-                                    <StackPanel Orientation="Horizontal"
-                                                Margin="5">
-                                        <TextBox Text="{Binding ScaleValue}"
-                                                 Width="60"
-                                                 Style="{StaticResource ModernTextBox}"
-                                                 VerticalAlignment="Center"/>
-                                        <Button Content="Scale"
-                                                Command="{Binding ScaleUniformCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="10,0,0,0"
-                                                Padding="15,8"/>
-                                    </StackPanel>
-
-                                    <TextBlock Text="Individual Axis Scaling:"
-                                               FontWeight="Bold"
-                                               Foreground="#00d4ff"
-                                               Margin="5,15,5,5"/>
-
-                                    <TextBlock Text="X Scale:"
-                                               Foreground="#e0e0e0"
-                                               Margin="5,5,5,2"/>
-                                    <StackPanel Orientation="Horizontal"
-                                                Margin="5">
-                                        <TextBox Text="{Binding ScaleX}"
-                                                 Width="60"
-                                                 Style="{StaticResource ModernTextBox}"
-                                                 VerticalAlignment="Center"/>
-                                        <Button Content="Scale X"
-                                                Command="{Binding ScaleXAxisCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="10,0,0,0"
-                                                Padding="10,5"/>
-                                    </StackPanel>
-
-                                    <TextBlock Text="Y Scale:"
-                                               Foreground="#e0e0e0"
-                                               Margin="5,5,5,2"/>
-                                    <StackPanel Orientation="Horizontal"
-                                                Margin="5">
-                                        <TextBox Text="{Binding ScaleY}"
-                                                 Width="60"
-                                                 Style="{StaticResource ModernTextBox}"
-                                                 VerticalAlignment="Center"/>
-                                        <Button Content="Scale Y"
-                                                Command="{Binding ScaleYAxisCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="10,0,0,0"
-                                                Padding="10,5"/>
-                                    </StackPanel>
-
-                                    <TextBlock Text="Z Scale:"
-                                               Foreground="#e0e0e0"
-                                               Margin="5,5,5,2"/>
-                                    <StackPanel Orientation="Horizontal"
-                                                Margin="5">
-                                        <TextBox Text="{Binding ScaleZ}"
-                                                 Width="60"
-                                                 Style="{StaticResource ModernTextBox}"
-                                                 VerticalAlignment="Center"/>
-                                        <Button Content="Scale Z"
-                                                Command="{Binding ScaleZAxisCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="10,0,0,0"
-                                                Padding="10,5"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </TabItem>
-
-                            <!-- View Tab -->
-                            <TabItem Header="View"
-                                     Style="{StaticResource ModernTabItem}">
-                                <StackPanel Margin="5">
-                                    <UniformGrid Rows="2"
-                                                 Columns="2"
-                                                 Margin="5">
-                                        <Button Content="⬆ Top"
-                                                Command="{Binding TopViewCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="10,5"/>
-                                        <Button Content="➡ Front"
-                                                Command="{Binding FrontViewCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="10,5"/>
-                                        <Button Content="⬅ Side"
-                                                Command="{Binding SideViewCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="10,5"/>
-                                        <Button Content="🔄 Reset"
-                                                Command="{Binding ResetViewCommand}"
-                                                Style="{StaticResource ModernButton}"
-                                                Margin="2"
-                                                Padding="10,5"/>
-                                    </UniformGrid>
-
-                                    <Border Background="#1e1e1e"
-                                            CornerRadius="3"
-                                            Padding="10"
-                                            Margin="5,10,5,5">
-                                        <StackPanel>
-                                            <TextBlock Text="🖱️ Mouse Controls:"
-                                                       FontWeight="Bold"
-                                                       Foreground="#00d4ff"
-                                                       Margin="0,0,0,5"/>
-                                            <TextBlock Text="🔵 Left Click + Drag: Rotate 360°"
-                                                       Foreground="#e0e0e0"
-                                                       FontSize="11"
-                                                       Margin="0,2"/>
-                                            <TextBlock Text="🔴 Right Click + Drag: Pan/Move"
-                                                       Foreground="#e0e0e0"
-                                                       FontSize="11"
-                                                       Margin="0,2"/>
-                                            <TextBlock Text="🔘 Mouse Wheel: Zoom In/Out"
-                                                       Foreground="#e0e0e0"
-                                                       FontSize="11"
-                                                       Margin="0,2"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <!-- Mouse Sensitivity Controls -->
-                                    <Border Background="#1e1e1e"
-                                            CornerRadius="3"
-                                            Padding="10"
-                                            Margin="5,10,5,5">
-                                        <StackPanel>
-                                            <TextBlock Text="🖱️ Mouse Sensitivity:"
-                                                       FontWeight="Bold"
-                                                       Foreground="#00d4ff"
-                                                       Margin="0,0,0,5"/>
-
-                                            <TextBlock Text="Rotation Sensitivity:"
-                                                       Foreground="#e0e0e0"
-                                                       FontSize="11"
-                                                       Margin="0,2"/>
-                                            <Slider Value="{Binding RotationSensitivity}"
-                                                    Minimum="0.1"
-                                                    Maximum="3.0"
-                                                    TickFrequency="0.1"
-                                                    IsSnapToTickEnabled="True"
-                                                    Margin="0,2"/>
-
-                                            <TextBlock Text="Pan Sensitivity:"
-                                                       Foreground="#e0e0e0"
-                                                       FontSize="11"
-                                                       Margin="0,5,0,2"/>
-                                            <Slider Value="{Binding PanSensitivity}"
-                                                    Minimum="0.1"
-                                                    Maximum="3.0"
-                                                    TickFrequency="0.1"
-                                                    IsSnapToTickEnabled="True"
-                                                    Margin="0,2"/>
-
-                                            <TextBlock Text="Zoom Sensitivity:"
-                                                       Foreground="#e0e0e0"
-                                                       FontSize="11"
-                                                       Margin="0,5,0,2"/>
-                                            <Slider Value="{Binding ZoomSensitivity}"
-                                                    Minimum="0.1"
-                                                    Maximum="3.0"
-                                                    TickFrequency="0.1"
-                                                    IsSnapToTickEnabled="True"
-                                                    Margin="0,2"/>
-
-                                            <Button Content="Reset Sensitivity"
-                                                    Command="{Binding ResetMouseSettingsCommand}"
-                                                    Style="{StaticResource ModernButton}"
-                                                    Margin="0,5,0,0"
-                                                    Padding="8,4"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Border Background="#1e1e1e"
-                                            CornerRadius="3"
-                                            Padding="10"
-                                            Margin="5,10,5,5">
-                                        <StackPanel>
-                                            <TextBlock Text="🖱️ Mouse Controls:"
-                                                       FontWeight="Bold"
-                                                       Foreground="#00d4ff"
-                                                       Margin="0,0,0,5"/>
-                                            <TextBlock Text="🔵 Left Click + Drag: Rotate 360°"
-                                                       Foreground="#e0e0e0"
-                                                       FontSize="11"
-                                                       Margin="0,2"/>
-                                            <TextBlock Text="🔴 Right Click + Drag: Pan/Move"
-                                                       Foreground="#e0e0e0"
-                                                       FontSize="11"
-                                                       Margin="0,2"/>
-                                            <TextBlock Text="🔘 Mouse Wheel: Zoom In/Out"
-                                                       Foreground="#e0e0e0"
-                                                       FontSize="11"
-                                                       Margin="0,2"/>
-                                            <TextBlock Text="🔘 Middle Click + Drag: Quick Zoom"
-                                                       Foreground="#e0e0e0"
-                                                       FontSize="11"
-                                                       Margin="0,2"/>
-                                            <TextBlock Text="🔘 Ctrl + Left Click: Zoom to Point"
-                                                       Foreground="#e0e0e0"
-                                                       FontSize="11"
-                                                       Margin="0,2"/>
-                                        </StackPanel>
-                                    </Border>
-                                </StackPanel>
-                            </TabItem>
-                        </TabControl>
-                    </GroupBox>
-
-                    <!-- Printer Profiles -->
-                    <GroupBox Header="⚙️ Printer Profiles"
-                              Margin="0,0,0,15"
-                              Foreground="White"
-                              BorderBrush="#3f3f46">
-                        <StackPanel>
-                            <TextBlock Text="Profile in Use:"
-                                       FontWeight="Bold"
-                                       Foreground="#00d4ff"
-                                       Margin="5,5,5,2"/>
-                            <ComboBox ItemsSource="{Binding AvailableProfiles}"
-                                      SelectedItem="{Binding SelectedProfile}"
-                                      Background="#2d2d30"
-                                      Foreground="White"
-                                      BorderBrush="#3f3f46"
-                                      Margin="5"/>
-
-                            <StackPanel Orientation="Horizontal"
-                                        Margin="5,10,5,5">
-                                <Button Content="Create"
-                                        Command="{Binding CreateProfileCommand}"
-                                        Style="{StaticResource ModernButton}"
-                                        Margin="2"
-                                        Padding="10,5"/>
-                                <Button Content="Delete"
-                                        Command="{Binding DeleteProfileCommand}"
-                                        Style="{StaticResource ModernButton}"
-                                        Margin="2"
-                                        Padding="10,5"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </GroupBox>
-
-                    <!-- Printer Settings -->
-                    <GroupBox Header="🔧 Printer Settings"
-                              Margin="0,0,0,15"
-                              Foreground="White"
-                              BorderBrush="#3f3f46">
-                        <StackPanel>
-                            <TextBlock Text="Profile Name"
-                                       Margin="5,5,5,2"
-                                       Foreground="#e0e0e0"/>
-                            <TextBox Text="{Binding PrinterSettings.ProfileName, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource ModernTextBox}"
-                                     Margin="5,0,5,10"/>
-
-                            <TextBlock Text="Notes:"
-                                       Margin="5,5,5,2"
-                                       Foreground="#e0e0e0"/>
-                            <TextBox Text="{Binding PrinterSettings.Notes}"
-                                     Height="40"
-                                     TextWrapping="Wrap"
-                                     AcceptsReturn="True"
-                                     Style="{StaticResource ModernTextBox}"
-                                     Margin="5,0,5,10"/>
-
-                            <TextBlock Text="Slice Thickness (mm)"
-                                       Margin="5,5,5,2"
-                                       Foreground="#e0e0e0"/>
-                            <TextBox Text="{Binding PrinterSettings.LayerThickness}"
-                                     Style="{StaticResource ModernTextBox}"
-                                     Margin="5,0,5,10"/>
-
-                            <TextBlock Text="Exposure Time Per Layer (s)"
-                                       Margin="5,5,5,2"
-                                       Foreground="#e0e0e0"/>
-                            <TextBox Text="{Binding PrinterSettings.ExposureTime}"
-                                     Style="{StaticResource ModernTextBox}"
-                                     Margin="5,0,5,10"/>
-
-                            <Grid Margin="5,0,5,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Bottom Exposure (s)"
-                                               Margin="0,0,0,2"
-                                               Foreground="#e0e0e0"/>
-                                    <TextBox Text="{Binding PrinterSettings.BottomExposureTime}"
-                                             Style="{StaticResource ModernTextBox}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1"
-                                            Margin="10,0,0,0">
-                                    <TextBlock Text="# Layers"
-                                               Margin="0,0,0,2"
-                                               Foreground="#e0e0e0"/>
-                                    <TextBox Text="{Binding PrinterSettings.BottomLayers}"
-                                             Style="{StaticResource ModernTextBox}"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <CheckBox Content="Enable Anti-Aliasing"
-                                      IsChecked="{Binding PrinterSettings.EnableAntiAliasing}"
-                                      Foreground="#e0e0e0"
-                                      Margin="5,5,5,5"/>
-                            <CheckBox Content="Export Images &amp; GCode"
-                                      IsChecked="{Binding PrinterSettings.ExportImagesAndGCode}"
-                                      Foreground="#e0e0e0"
-                                      Margin="5,0,5,10"/>
-
-                            <TextBlock Text="Build Volume (mm)"
-                                       FontWeight="Bold"
-                                       Margin="5,10,5,5"
-                                       Foreground="#00d4ff"/>
-                            <Grid Margin="5,0,5,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0"
-                                            Margin="0,0,5,0">
-                                    <TextBlock Text="X"
-                                               Margin="0,0,0,2"
-                                               Foreground="#e0e0e0"/>
-                                    <TextBox Text="{Binding PrinterSettings.BuildVolumeX}"
-                                             Style="{StaticResource ModernTextBox}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1"
-                                            Margin="5,0,5,0">
-                                    <TextBlock Text="Y"
-                                               Margin="0,0,0,2"
-                                               Foreground="#e0e0e0"/>
-                                    <TextBox Text="{Binding PrinterSettings.BuildVolumeY}"
-                                             Style="{StaticResource ModernTextBox}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2"
-                                            Margin="5,0,0,0">
-                                    <TextBlock Text="Z"
-                                               Margin="0,0,0,2"
-                                               Foreground="#e0e0e0"/>
-                                    <TextBox Text="{Binding PrinterSettings.BuildVolumeZ}"
-                                             Style="{StaticResource ModernTextBox}"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <TextBlock Text="Lift Settings"
-                                       FontWeight="Bold"
-                                       Margin="5,10,5,5"
-                                       Foreground="#00d4ff"/>
-                            <Grid Margin="5,0,5,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Z Lift Distance (mm)"
-                                               Margin="0,0,0,2"
-                                               Foreground="#e0e0e0"/>
-                                    <TextBox Text="{Binding PrinterSettings.LiftHeight}"
-                                             Style="{StaticResource ModernTextBox}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1"
-                                            Margin="10,0,0,0">
-                                    <TextBlock Text="Lift Sequence Time (s)"
-                                               Margin="0,0,0,2"
-                                               Foreground="#e0e0e0"/>
-                                    <TextBox Text="{Binding PrinterSettings.LiftSequenceTime}"
-                                             Style="{StaticResource ModernTextBox}"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <Grid Margin="5,0,5,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Z Lift Speed (mm/m)"
-                                               Margin="0,0,0,2"
-                                               Foreground="#e0e0e0"/>
-                                    <TextBox Text="{Binding PrinterSettings.LiftSpeed}"
-                                             Style="{StaticResource ModernTextBox}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1"
-                                            Margin="10,0,0,0">
-                                    <TextBlock Text="Retract Speed (mm/m)"
-                                               Margin="0,0,0,2"
-                                               Foreground="#e0e0e0"/>
-                                    <TextBox Text="{Binding PrinterSettings.RetractSpeed}"
-                                             Style="{StaticResource ModernTextBox}"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <TextBlock Text="Advanced Settings"
-                                       FontWeight="Bold"
-                                       Margin="5,10,5,5"
-                                       Foreground="#00d4ff"/>
-                            <Grid Margin="5,0,5,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Image Offset X"
-                                               Margin="0,0,0,2"
-                                               Foreground="#e0e0e0"/>
-                                    <TextBox Text="{Binding PrinterSettings.ImageOffsetX}"
-                                             Style="{StaticResource ModernTextBox}"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1"
-                                            Margin="10,0,0,0">
-                                    <TextBlock Text="Image Offset Y"
-                                               Margin="0,0,0,2"
-                                               Foreground="#e0e0e0"/>
-                                    <TextBox Text="{Binding PrinterSettings.ImageOffsetY}"
-                                             Style="{StaticResource ModernTextBox}"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <StackPanel Orientation="Horizontal"
-                                        Margin="5,0,5,10">
-                                <CheckBox Content="Reflect X"
-                                          IsChecked="{Binding PrinterSettings.ReflectX}"
-                                          Foreground="#e0e0e0"
-                                          Margin="0,0,10,0"/>
-                                <CheckBox Content="Reflect Y"
-                                          IsChecked="{Binding PrinterSettings.ReflectY}"
-                                          Foreground="#e0e0e0"/>
-                            </StackPanel>
-
-                            <TextBlock Text="Resin Price per liter ($)"
-                                       Margin="5,5,5,2"
-                                       Foreground="#e0e0e0"/>
-                            <TextBox Text="{Binding PrinterSettings.ResinPricePerLiter}"
-                                     Style="{StaticResource ModernTextBox}"
-                                     Margin="5,0,5,5"/>
-                        </StackPanel>
-                    </GroupBox>
-
-                    <!-- Slice Controls -->
-                    <GroupBox Header="🔪 Slicing"
-                              Foreground="White"
-                              BorderBrush="#3f3f46">
-                        <StackPanel>
-                            <Button Content="🔪 SLICE MODEL"
-                                    Command="{Binding SliceModelCommand}"
-                                    IsEnabled="{Binding IsModelLoaded}"
-                                    Style="{StaticResource PrimaryButton}"
-                                    Padding="20,12"
-                                    Margin="5"
-                                    FontSize="14"
-                                    FontWeight="Bold"/>
-                        </StackPanel>
-                    </GroupBox>
-
-                </StackPanel>
-            </ScrollViewer>
-        </DockPanel>
-
-        <!-- Splitter -->
-        <GridSplitter Grid.Column="1"
-                      HorizontalAlignment="Stretch"
-                      Width="5"
-                      Background="#3f3f46"/>
-
-        <!-- 3D Viewport -->
-        <Grid Grid.Column="2"
-              Background="#1e1e1e">
-            <h:HelixViewport3D x:Name="viewport"
-                               ZoomExtentsWhenLoaded="True"
-                               ShowViewCube="True"
-                               ShowCameraInfo="False"
-                               ViewCubeOpacity="0.9"
-                               ViewCubeWidth="80"
-                               ViewCubeHeight="80"
-                               IsRotationEnabled="True"
-                               IsPanEnabled="True"
-                               IsZoomEnabled="True"
-                               IsInertiaEnabled="True"
-                               CameraMode="Inspect"
-                               CameraRotationMode="Trackball"
-                               InfiniteSpin="False"
-                               Background="#1e1e1e">
-
-                <h:DefaultLights/>
-
-                <h:GridLinesVisual3D Width="200"
-                                     Length="200"
-                                     MinorDistance="10"
-                                     MajorDistance="50"
-                                     Thickness="0.5"
-                                     Fill="#2d2d30"/>
-
-            </h:HelixViewport3D>
+            <!-- Right Content Area -->
+            <ContentControl Grid.Column="2" Content="{Binding CurrentView}"/>
         </Grid>
-
     </Grid>
 </Window>

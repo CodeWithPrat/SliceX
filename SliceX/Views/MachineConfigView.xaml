@@ -1,0 +1,181 @@
+<UserControl x:Class="SliceX.Views.MachineConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800"
+             Background="#1e1e1e">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="20">
+
+            <!-- Profile Selection -->
+            <GroupBox Header="Profile in Use:" Foreground="White" BorderBrush="#3f3f46" Margin="0,0,0,15">
+                <StackPanel Margin="10">
+                    <ComboBox ItemsSource="{Binding MachineProfiles}" 
+                              SelectedItem="{Binding SelectedMachineProfile}"
+                              Background="#2d2d30" Foreground="White" 
+                              BorderBrush="#3f3f46" Margin="0,0,0,10"/>
+                    
+                    <TextBlock Text="Configured Machine Profiles" FontWeight="Bold" 
+                               Foreground="#00d4ff" Margin="0,0,0,5"/>
+                    <TextBlock Text="All Profiles:" Foreground="#e0e0e0" Margin="0,0,0,5"/>
+                    
+                    <ListBox ItemsSource="{Binding AllMachineProfiles}" 
+                             Background="#2d2d30" Foreground="White"
+                             BorderBrush="#3f3f46" Height="80" Margin="0,0,0,10"/>
+                    
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Create" Command="{Binding CreateMachineProfileCommand}" 
+                                Style="{StaticResource ModernButton}" Margin="0,0,10,0" Padding="10,5"/>
+                        <Button Content="Delete" Command="{Binding DeleteMachineProfileCommand}" 
+                                Style="{StaticResource ModernButton}" Padding="10,5"/>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Machine Configuration -->
+            <GroupBox Header="Machine Configuration" Foreground="White" BorderBrush="#3f3f46" Margin="0,0,0,15">
+                <StackPanel Margin="10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Text="NullMachine" Grid.Column="0" Foreground="White" 
+                                   FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Machine Type" Foreground="#e0e0e0" Margin="0,0,0,5"/>
+                            <ComboBox ItemsSource="{Binding MachineTypes}" 
+                                      SelectedItem="{Binding SelectedMachineType}"
+                                      Background="#2d2d30" Foreground="White" 
+                                      BorderBrush="#3f3f46"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Axis Configuration -->
+                    <TextBlock Text="Axis Configuration" FontWeight="Bold" 
+                               Foreground="#00d4ff" Margin="0,15,0,10"/>
+                    
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Headers -->
+                        <TextBlock Text="Axis" Grid.Row="0" Grid.Column="0" FontWeight="Bold" Foreground="#00d4ff"/>
+                        <TextBlock Text="Length (mm)" Grid.Row="0" Grid.Column="1" FontWeight="Bold" Foreground="#00d4ff"/>
+                        <TextBlock Text="Max Feed Rate (mm/m)" Grid.Row="0" Grid.Column="2" FontWeight="Bold" Foreground="#00d4ff"/>
+                        <TextBlock Text="Driver" Grid.Row="0" Grid.Column="3" FontWeight="Bold" Foreground="#00d4ff"/>
+                        <TextBlock Text="Machine Connection" Grid.Row="0" Grid.Column="4" FontWeight="Bold" Foreground="#00d4ff"/>
+
+                        <!-- X Axis -->
+                        <TextBlock Text="X" Grid.Row="1" Grid.Column="0" Foreground="White" VerticalAlignment="Center"/>
+                        <TextBox Text="{Binding XAxisLength}" Grid.Row="1" Grid.Column="1" 
+                                 Style="{StaticResource ModernTextBox}" Margin="2"/>
+                        <TextBox Text="{Binding XAxisFeedRate}" Grid.Row="1" Grid.Column="2" 
+                                 Style="{StaticResource ModernTextBox}" Margin="2"/>
+                        <ComboBox ItemsSource="{Binding Drivers}" SelectedItem="{Binding XAxisDriver}" 
+                                  Grid.Row="1" Grid.Column="3" Margin="2"
+                                  Background="#2d2d30" Foreground="White" BorderBrush="#3f3f46"/>
+                        <StackPanel Grid.Row="1" Grid.Column="4" Orientation="Horizontal" Margin="2">
+                            <ComboBox ItemsSource="{Binding ConnectionTypes}" 
+                                      SelectedItem="{Binding XAxisConnection}"
+                                      Background="#2d2d30" Foreground="White" 
+                                      BorderBrush="#3f3f46" Width="120"/>
+                            <TextBlock Text="Port: Com1" Foreground="#e0e0e0" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                            <Button Content="Configure" Command="{Binding ConfigureXAxisCommand}" 
+                                    Style="{StaticResource ModernButton}" Margin="10,0,0,0" Padding="5,2"/>
+                        </StackPanel>
+
+                        <!-- Y Axis -->
+                        <TextBlock Text="Y" Grid.Row="2" Grid.Column="0" Foreground="White" VerticalAlignment="Center"/>
+                        <TextBox Text="{Binding YAxisLength}" Grid.Row="2" Grid.Column="1" 
+                                 Style="{StaticResource ModernTextBox}" Margin="2"/>
+                        <TextBox Text="{Binding YAxisFeedRate}" Grid.Row="2" Grid.Column="2" 
+                                 Style="{StaticResource ModernTextBox}" Margin="2"/>
+                        <ComboBox ItemsSource="{Binding Drivers}" SelectedItem="{Binding YAxisDriver}" 
+                                  Grid.Row="2" Grid.Column="3" Margin="2"
+                                  Background="#2d2d30" Foreground="White" BorderBrush="#3f3f46"/>
+                        <StackPanel Grid.Row="2" Grid.Column="4" Orientation="Horizontal" Margin="2">
+                            <ComboBox ItemsSource="{Binding ConnectionTypes}" 
+                                      SelectedItem="{Binding YAxisConnection}"
+                                      Background="#2d2d30" Foreground="White" 
+                                      BorderBrush="#3f3f46" Width="120"/>
+                            <TextBlock Text="Port: Com1" Foreground="#e0e0e0" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                            <Button Content="Configure" Command="{Binding ConfigureYAxisCommand}" 
+                                    Style="{StaticResource ModernButton}" Margin="10,0,0,0" Padding="5,2"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Display Configuration -->
+            <GroupBox Header="Display Configuration" Foreground="White" BorderBrush="#3f3f46" Margin="0,0,0,15">
+                <StackPanel Margin="10">
+                    <TextBlock Text="Select Print Display Device" Foreground="#e0e0e0" Margin="0,0,0,5"/>
+                    <ComboBox ItemsSource="{Binding DisplayDevices}" 
+                              SelectedItem="{Binding SelectedDisplayDevice}"
+                              Background="#2d2d30" Foreground="White" 
+                              BorderBrush="#3f3f46" Margin="0,0,0,10"/>
+                    
+                    <Button Content="Refresh" Command="{Binding RefreshDisplaysCommand}" 
+                            Style="{StaticResource ModernButton}" HorizontalAlignment="Left" 
+                            Padding="10,5" Margin="0,0,0,15"/>
+
+                    <TextBlock Text="Display Resolution (pixels)" FontWeight="Bold" 
+                               Foreground="#00d4ff" Margin="0,0,0,5"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Width" Foreground="#e0e0e0" Margin="0,0,0,2"/>
+                            <TextBox Text="{Binding DisplayWidth}" Style="{StaticResource ModernTextBox}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                            <TextBlock Text="Height" Foreground="#e0e0e0" Margin="0,0,0,2"/>
+                            <TextBox Text="{Binding DisplayHeight}" Style="{StaticResource ModernTextBox}"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Projector Serial Control -->
+            <GroupBox Header="Projector Serial Control" Foreground="White" BorderBrush="#3f3f46">
+                <StackPanel Margin="10">
+                    <CheckBox Content="Enable" IsChecked="{Binding ProjectorSerialEnabled}" 
+                              Foreground="#e0e0e0" Margin="0,0,0,10"/>
+                    
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Port: Com1" Foreground="#e0e0e0" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <Button Content="Configure" Command="{Binding ConfigureProjectorCommand}" 
+                                Style="{StaticResource ModernButton}" Padding="10,5"/>
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+
+            <!-- Save Button -->
+            <Button Content="Save Changes" Command="{Binding SaveMachineConfigCommand}" 
+                    Style="{StaticResource PrimaryButton}" Padding="15,8" 
+                    HorizontalAlignment="Right" Margin="0,15,0,0"/>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

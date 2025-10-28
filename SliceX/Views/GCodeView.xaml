@@ -1,0 +1,38 @@
+<UserControl x:Class="SliceX.Views.GCodeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800"
+             Background="#1e1e1e">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#252526" Padding="10">
+            <TextBlock Text="Generated G-Code" Foreground="White" FontSize="16" FontWeight="Bold"/>
+        </Border>
+
+        <!-- G-Code Content -->
+        <TextBox Grid.Row="1" x:Name="GCodeTextBox" 
+                 Text="{Binding GeneratedGCode, Mode=OneWay}"
+                 Background="#252526" Foreground="White" 
+                 BorderThickness="0" Padding="10"
+                 FontFamily="Consolas" FontSize="12"
+                 VerticalScrollBarVisibility="Auto" 
+                 HorizontalScrollBarVisibility="Auto"
+                 IsReadOnly="True" TextWrapping="NoWrap"/>
+
+        <!-- Copy Button -->
+        <Button Content="📋 Copy G-Code" 
+                Command="{Binding CopyGCodeCommand}"
+                Style="{StaticResource ModernButton}"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                Margin="10" Padding="10,5"/>
+    </Grid>
+</UserControl>

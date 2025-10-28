@@ -9,10 +9,21 @@ namespace SliceX.Views
         {
             InitializeComponent();
             
+            // Set the DataContext if it's not already set in XAML
+            if (DataContext == null)
+            {
+                DataContext = new MainViewModel();
+            }
+        }
+
+        // Handle window closing event
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
             if (DataContext is MainViewModel viewModel)
             {
-                viewModel.Viewport3D = viewport;
+                viewModel.StatusMessage = "Closing application...";
             }
+            base.OnClosing(e);
         }
     }
 }

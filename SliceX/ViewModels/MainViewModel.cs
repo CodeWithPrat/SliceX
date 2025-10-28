@@ -15,6 +15,8 @@ using System.Linq;
 using SliceX.Export;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
+using SliceX.Views;
 
 namespace SliceX.ViewModels
 {
@@ -73,7 +75,168 @@ namespace SliceX.ViewModels
         [ObservableProperty]
         private double zoomSensitivity = 1.0;
 
+        // Navigation Properties
+        [ObservableProperty]
+        private UserControl currentView;
+
+        [ObservableProperty]
+        private string generatedGCode = "";
+
+        [ObservableProperty]
+        private BitmapSource currentLayerImage;
+
+        [ObservableProperty]
+        private int currentLayerNumber = 1;
+
+        [ObservableProperty]
+        private int totalLayers = 0;
+
+        // Machine Control Properties
+        [ObservableProperty]
+        private double zRateFast = 3000;
+
+        [ObservableProperty]
+        private double zRateSlow = 100;
+
+        [ObservableProperty]
+        private string gCodeToSend = "";
+
+        [ObservableProperty]
+        private string sentGCode = "";
+
+        [ObservableProperty]
+        private double extrudeDistance0 = 10;
+
+        [ObservableProperty]
+        private double reverseRate0 = 100;
+
+        [ObservableProperty]
+        private double extrudeDistance1 = 10;
+
+        [ObservableProperty]
+        private double reverseRate1 = 100;
+
+        [ObservableProperty]
+        private string projectorCommands = "";
+
+        // Machine Config Properties
+        [ObservableProperty]
+        private ObservableCollection<string> machineProfiles = new ObservableCollection<string>
+        {
+            "NullMachine", "Default_FDM", "Default_SLA", "SUKSHM3D"
+        };
+
+        [ObservableProperty]
+        private string selectedMachineProfile = "NullMachine";
+
+        [ObservableProperty]
+        private ObservableCollection<string> allMachineProfiles = new ObservableCollection<string>
+        {
+            "Default_FDM", "Default_SLA", "NullMachine", "SUKSHM3D"
+        };
+
+        [ObservableProperty]
+        private ObservableCollection<string> machineTypes = new ObservableCollection<string>
+        {
+            "UV_DLP", "FDM", "SLA", "DLP"
+        };
+
+        [ObservableProperty]
+        private string selectedMachineType = "UV_DLP";
+
+        [ObservableProperty]
+        private double xAxisLength = 14.515;
+
+        [ObservableProperty]
+        private double xAxisFeedRate = 100;
+
+        [ObservableProperty]
+        private string xAxisDriver = "eNULL_DRIVER";
+
+        [ObservableProperty]
+        private string xAxisConnection = "eRF_3DLPRINTER";
+
+        [ObservableProperty]
+        private double yAxisLength = 8.165;
+
+        [ObservableProperty]
+        private double yAxisFeedRate = 100;
+
+        [ObservableProperty]
+        private string yAxisDriver = "EGENERIC";
+
+        [ObservableProperty]
+        private string yAxisConnection = "eRF_3DLPRINTER";
+
+        [ObservableProperty]
+        private ObservableCollection<string> drivers = new ObservableCollection<string>
+        {
+            "eNULL_DRIVER", "EGENERIC", "eRF_3DLPRINTER"
+        };
+
+        [ObservableProperty]
+        private ObservableCollection<string> connectionTypes = new ObservableCollection<string>
+        {
+            "eRF_3DLPRINTER", "SERIAL", "ETHERNET"
+        };
+
+        [ObservableProperty]
+        private ObservableCollection<string> displayDevices = new ObservableCollection<string>
+        {
+            @"V:\DISPLAY1", @"V:\DISPLAY2"
+        };
+
+        [ObservableProperty]
+        private string selectedDisplayDevice = @"V:\DISPLAY1";
+
+        [ObservableProperty]
+        private int displayWidth = 1920;
+
+        [ObservableProperty]
+        private int displayHeight = 1080;
+
+        [ObservableProperty]
+        private bool projectorSerialEnabled = false;
+
+        // Slice Profile Properties
+        [ObservableProperty]
+        private ObservableCollection<string> sliceProfiles = new ObservableCollection<string>
+        {
+            "default", "3dlnk_Acrylic", "HT", "PMMA"
+        };
+
+        [ObservableProperty]
+        private string selectedSliceProfile = "default";
+
+        [ObservableProperty]
+        private ObservableCollection<string> allSliceProfiles = new ObservableCollection<string>
+        {
+            "3dlnk_Acrylic", "default", "HT", "PMMA"
+        };
+
+        [ObservableProperty]
+        private bool exportToZip = true;
+
+        [ObservableProperty]
+        private bool exportToDirectory = false;
+
+        [ObservableProperty]
+        private bool useMainLiftGCode = false;
+
+        [ObservableProperty]
+        private bool autoCalcLiftTime = false;
+
+        [ObservableProperty]
+        private ObservableCollection<string> buildDirections = new ObservableCollection<string>
+        {
+            "Bottom_Up", "Top_Down"
+        };
+
         private HelixViewport3D? viewport3D;
+        private SliceResult? currentSliceResult;
+        private readonly SliceX.Utilities.ModelImporter modelImporter = new SliceX.Utilities.ModelImporter();
+        private readonly SlicingEngine slicingEngine = new SlicingEngine();
+        private ModelVisual3D? currentModelVisual;
 
         public HelixViewport3D? Viewport3D
         {
@@ -88,13 +251,307 @@ namespace SliceX.ViewModels
             }
         }
 
-        private readonly SliceX.Utilities.ModelImporter modelImporter = new SliceX.Utilities.ModelImporter();
-        private readonly SlicingEngine slicingEngine = new SlicingEngine();
-        private ModelVisual3D? currentModelVisual;
+        // Add these private fields to MainViewModel
+        private ThreeDView _threeDView;
+        private GCodeView _gCodeView;
+        private SliceViewerView _sliceViewerView;
+        private MachineControlView _machineControlView;
+        private MachineConfigView _machineConfigView;
+        private SliceProfileView _sliceProfileView;
 
+        // Update the constructor
         public MainViewModel()
         {
             LoadAvailableProfiles();
+
+            // Initialize all views once and cache them
+            InitializeViews();
+
+            // Set default view
+            CurrentView = _threeDView;
+        }
+
+        private void InitializeViews()
+        {
+            _threeDView = new ThreeDView { DataContext = this };
+            _gCodeView = new GCodeView { DataContext = this };
+            _sliceViewerView = new SliceViewerView { DataContext = this };
+            _machineControlView = new MachineControlView { DataContext = this };
+            _machineConfigView = new MachineConfigView { DataContext = this };
+            _sliceProfileView = new SliceProfileView { DataContext = this };
+        }
+
+        // Update navigation commands to use cached views
+        [RelayCommand]
+        private void NavigateTo3DView()
+        {
+            CurrentView = _threeDView;
+            if (_threeDView is ThreeDView threeDView)
+            {
+                threeDView.OnActivated();
+            }
+        }
+
+        [RelayCommand]
+        private void NavigateToGCode() => CurrentView = _gCodeView;
+
+        [RelayCommand]
+        private void NavigateToSliceViewer() => CurrentView = _sliceViewerView;
+
+        [RelayCommand]
+        private void NavigateToMachineControl() => CurrentView = _machineControlView;
+
+        [RelayCommand]
+        private void NavigateToMachineConfig() => CurrentView = _machineConfigView;
+
+        [RelayCommand]
+        private void NavigateToSliceProfile() => CurrentView = _sliceProfileView;
+
+        // New Commands for additional functionality
+        [RelayCommand]
+        private void CopyGCode()
+        {
+            if (!string.IsNullOrEmpty(GeneratedGCode))
+            {
+                Clipboard.SetText(GeneratedGCode);
+                StatusMessage = "G-Code copied to clipboard!";
+            }
+        }
+
+        [RelayCommand]
+        private void EstimateVolumeAndCost()
+        {
+            if (CurrentModel == null)
+            {
+                MessageBox.Show("Please load a model first.", "No Model",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                var tempResult = slicingEngine.SliceModel(CurrentModel, PrinterSettings);
+                MessageBox.Show(
+                    $"Estimated Resin Volume: {tempResult.EstimatedResinVolume:F1} ml\n" +
+                    $"Estimated Cost: ${tempResult.EstimatedCost:F2}",
+                    "Volume and Cost Estimate",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error estimating volume: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void ShowPreferences()
+        {
+            // Implementation for preferences dialog
+            MessageBox.Show("Preferences dialog will be implemented here.", "Preferences",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        [RelayCommand]
+        private void Exit()
+        {
+            Application.Current.Shutdown();
+        }
+
+        [RelayCommand]
+        private void FirstLayer()
+        {
+            if (currentSliceResult?.Layers.Count > 0)
+            {
+                CurrentLayerNumber = 1;
+                UpdateLayerImage();
+            }
+        }
+
+        [RelayCommand]
+        private void PreviousLayer()
+        {
+            if (CurrentLayerNumber > 1)
+            {
+                CurrentLayerNumber--;
+                UpdateLayerImage();
+            }
+        }
+
+        [RelayCommand]
+        private void NextLayer()
+        {
+            if (CurrentLayerNumber < TotalLayers)
+            {
+                CurrentLayerNumber++;
+                UpdateLayerImage();
+            }
+        }
+
+        [RelayCommand]
+        private void LastLayer()
+        {
+            if (currentSliceResult?.Layers.Count > 0)
+            {
+                CurrentLayerNumber = TotalLayers;
+                UpdateLayerImage();
+            }
+        }
+
+        // Machine Control Commands
+        [RelayCommand]
+        private void EnableMotors() => StatusMessage = "Motors enabled";
+
+        [RelayCommand]
+        private void DisableMotors() => StatusMessage = "Motors disabled";
+
+        [RelayCommand]
+        private void SendGCode()
+        {
+            if (!string.IsNullOrEmpty(GCodeToSend))
+            {
+                SentGCode = GCodeToSend;
+                StatusMessage = "G-Code sent to machine";
+                GCodeToSend = "";
+            }
+        }
+
+        [RelayCommand]
+        private void ExtrudeTool0() => StatusMessage = $"Extruded {ExtrudeDistance0}mm on Tool 0";
+
+        [RelayCommand]
+        private void ReverseTool0() => StatusMessage = $"Reversed {ReverseRate0}mm/min on Tool 0";
+
+        [RelayCommand]
+        private void ExtrudeTool1() => StatusMessage = $"Extruded {ExtrudeDistance1}mm on Tool 1";
+
+        [RelayCommand]
+        private void ReverseTool1() => StatusMessage = $"Reversed {ReverseRate1}mm/min on Tool 1";
+
+        [RelayCommand]
+        private void HomeX() => StatusMessage = "Homing X axis";
+
+        [RelayCommand]
+        private void HomeY() => StatusMessage = "Homing Y axis";
+
+        [RelayCommand]
+        private void HomeZ() => StatusMessage = "Homing Z axis";
+
+        [RelayCommand]
+        private void HomeAll() => StatusMessage = "Homing all axes";
+
+        [RelayCommand]
+        private void ShowProjector() => StatusMessage = "Projector shown";
+
+        [RelayCommand]
+        private void ConnectMonitor() => StatusMessage = "Monitor connected";
+
+        [RelayCommand]
+        private void ShowBlank() => StatusMessage = "Blank screen shown";
+
+        [RelayCommand]
+        private void EditCommands() => StatusMessage = "Editing commands";
+
+        [RelayCommand]
+        private void HideProjector() => StatusMessage = "Projector hidden";
+
+        [RelayCommand]
+        private void SendProjector() => StatusMessage = "Projector command sent";
+
+        [RelayCommand]
+        private void ClearProjector() => ProjectorCommands = "";
+
+        // Machine Config Commands
+        [RelayCommand]
+        private void CreateMachineProfile()
+        {
+            var newName = Microsoft.VisualBasic.Interaction.InputBox("Enter new machine profile name:", "Create Profile", "NewMachine");
+            if (!string.IsNullOrEmpty(newName))
+            {
+                MachineProfiles.Add(newName);
+                AllMachineProfiles.Add(newName);
+                SelectedMachineProfile = newName;
+                StatusMessage = $"Machine profile created: {newName}";
+            }
+        }
+
+        [RelayCommand]
+        private void DeleteMachineProfile()
+        {
+            if (SelectedMachineProfile != "NullMachine")
+            {
+                MachineProfiles.Remove(SelectedMachineProfile);
+                AllMachineProfiles.Remove(SelectedMachineProfile);
+                SelectedMachineProfile = "NullMachine";
+                StatusMessage = "Machine profile deleted";
+            }
+        }
+
+        [RelayCommand]
+        private void ConfigureXAxis() => StatusMessage = "Configuring X axis";
+
+        [RelayCommand]
+        private void ConfigureYAxis() => StatusMessage = "Configuring Y axis";
+
+        [RelayCommand]
+        private void RefreshDisplays() => StatusMessage = "Displays refreshed";
+
+        [RelayCommand]
+        private void ConfigureProjector() => StatusMessage = "Configuring projector";
+
+        [RelayCommand]
+        private void SaveMachineConfig() => StatusMessage = "Machine configuration saved";
+
+        // Slice Profile Commands
+        [RelayCommand]
+        private void CreateSliceProfile()
+        {
+            var newName = Microsoft.VisualBasic.Interaction.InputBox("Enter new slice profile name:", "Create Profile", "NewProfile");
+            if (!string.IsNullOrEmpty(newName))
+            {
+                SliceProfiles.Add(newName);
+                AllSliceProfiles.Add(newName);
+                SelectedSliceProfile = newName;
+                PrinterSettings.ProfileName = newName;
+                StatusMessage = $"Slice profile created: {newName}";
+            }
+        }
+
+        [RelayCommand]
+        private void DeleteSliceProfile()
+        {
+            if (SelectedSliceProfile != "default")
+            {
+                SliceProfiles.Remove(SelectedSliceProfile);
+                AllSliceProfiles.Remove(SelectedSliceProfile);
+                SelectedSliceProfile = "default";
+                PrinterSettings.ProfileName = "default";
+                StatusMessage = "Slice profile deleted";
+            }
+        }
+
+        [RelayCommand]
+        private void ApplySliceProfile() => StatusMessage = "Slice profile applied";
+
+        private void UpdateLayerImage()
+        {
+            if (currentSliceResult?.Layers.Count >= CurrentLayerNumber && CurrentLayerNumber > 0)
+            {
+                var layer = currentSliceResult.Layers[CurrentLayerNumber - 1];
+                if (layer.ImageData != null && layer.ImageData.Length > 0)
+                {
+                    var bitmap = new BitmapImage();
+                    using (var stream = new MemoryStream(layer.ImageData))
+                    {
+                        bitmap.BeginInit();
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmap.StreamSource = stream;
+                        bitmap.EndInit();
+                    }
+                    CurrentLayerImage = bitmap;
+                }
+            }
         }
 
         private void LoadAvailableProfiles()
@@ -110,85 +567,121 @@ namespace SliceX.ViewModels
         {
             if (Viewport3D == null) return;
 
-            // Clear any existing mouse bindings
-            Viewport3D.InputBindings.Clear();
-
-            // Basic viewport settings
-            Viewport3D.ShowCoordinateSystem = true;
-            Viewport3D.ShowCameraInfo = false;
-            Viewport3D.ZoomExtentsWhenLoaded = true;
-
-            // Enable all interactions
-            Viewport3D.IsRotationEnabled = true;
-            Viewport3D.IsPanEnabled = true;
-            Viewport3D.IsZoomEnabled = true;
-            Viewport3D.IsInertiaEnabled = true;
-            Viewport3D.IsMoveEnabled = true;
-            Viewport3D.IsChangeFieldOfViewEnabled = false;
-
-            // Camera settings for smooth operation
-            Viewport3D.CameraMode = CameraMode.Inspect;
-            Viewport3D.CameraRotationMode = CameraRotationMode.Trackball;
-
-            // Configure sensitivity
-            Viewport3D.RotationSensitivity = RotationSensitivity;
-            Viewport3D.UpDownPanSensitivity = PanSensitivity;
-            Viewport3D.LeftRightPanSensitivity = PanSensitivity;
-            Viewport3D.ZoomSensitivity = ZoomSensitivity;
-
-            // Mouse behavior settings
-            Viewport3D.RotateAroundMouseDownPoint = true;
-            Viewport3D.ZoomAroundMouseDownPoint = true;
-            Viewport3D.InfiniteSpin = false;
-
-            // Set custom mouse gestures for precise control
-            ConfigureMouseGestures();
-
-            // Cursor settings
-            Viewport3D.PanCursor = Cursors.SizeAll;
-            Viewport3D.RotateCursor = Cursors.Hand;
-            Viewport3D.ZoomCursor = Cursors.SizeNS;
-
-            // Add default lighting
-            Viewport3D.Children.Add(new DefaultLights());
-
-            // Add grid
-            var grid = new GridLinesVisual3D
+            try
             {
-                Width = 200,
-                Length = 200,
-                MinorDistance = 10,
-                MajorDistance = 50,
-                Thickness = 0.5,
-                Fill = new SolidColorBrush(Color.FromRgb(45, 45, 48))
-            };
-            Viewport3D.Children.Add(grid);
+                // Clear any existing mouse bindings
+                Viewport3D.InputBindings.Clear();
+
+                // Basic viewport settings
+                Viewport3D.ShowCoordinateSystem = true;
+                Viewport3D.ShowCameraInfo = false;
+                Viewport3D.ZoomExtentsWhenLoaded = true;
+
+                // Enable all interactions
+                Viewport3D.IsRotationEnabled = true;
+                Viewport3D.IsPanEnabled = true;
+                Viewport3D.IsZoomEnabled = true;
+                Viewport3D.IsInertiaEnabled = true;
+                Viewport3D.IsMoveEnabled = true;
+                Viewport3D.IsChangeFieldOfViewEnabled = false;
+
+                // Camera settings for smooth operation
+                Viewport3D.CameraMode = CameraMode.Inspect;
+                Viewport3D.CameraRotationMode = CameraRotationMode.Trackball;
+
+                // Configure sensitivity
+                Viewport3D.RotationSensitivity = RotationSensitivity;
+                Viewport3D.UpDownPanSensitivity = PanSensitivity;
+                Viewport3D.LeftRightPanSensitivity = PanSensitivity;
+                Viewport3D.ZoomSensitivity = ZoomSensitivity;
+
+                // Mouse behavior settings
+                Viewport3D.RotateAroundMouseDownPoint = true;
+                Viewport3D.ZoomAroundMouseDownPoint = true;
+                Viewport3D.InfiniteSpin = false;
+
+                // Set custom mouse gestures for precise control
+                ConfigureMouseGestures();
+
+                // Cursor settings
+                Viewport3D.PanCursor = Cursors.SizeAll;
+                Viewport3D.RotateCursor = Cursors.Hand;
+                Viewport3D.ZoomCursor = Cursors.SizeNS;
+
+                // Add default lighting
+                Viewport3D.Children.Add(new DefaultLights());
+
+                // Add grid
+                var grid = new GridLinesVisual3D
+                {
+                    Width = 200,
+                    Length = 200,
+                    MinorDistance = 10,
+                    MajorDistance = 50,
+                    Thickness = 0.5,
+                    Fill = new SolidColorBrush(Color.FromRgb(45, 45, 48))
+                };
+                Viewport3D.Children.Add(grid);
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't crash the application
+                System.Diagnostics.Debug.WriteLine($"Error initializing viewport: {ex.Message}");
+                StatusMessage = "Viewport initialization completed with warnings";
+            }
         }
 
         private void ConfigureMouseGestures()
         {
             if (Viewport3D == null) return;
 
-            // Configure mouse gestures for optimal control
-            Viewport3D.RotateGesture = new MouseGesture(MouseAction.LeftClick);
-            Viewport3D.PanGesture = new MouseGesture(MouseAction.RightClick);
-            Viewport3D.ZoomGesture = new MouseGesture(MouseAction.MiddleClick);
-            Viewport3D.ZoomGesture2 = new MouseGesture(MouseAction.WheelClick);
-            
-            // Disable other gestures that might interfere
-            Viewport3D.ChangeFieldOfViewGesture = null;
-            Viewport3D.ZoomRectangleGesture = null;
-
-            // Fine-tune camera controller settings
-            if (Viewport3D.CameraController != null)
+            try
             {
-                Viewport3D.CameraController.CameraRotationMode = CameraRotationMode.Trackball;
-                Viewport3D.CameraController.InfiniteSpin = false;
-                Viewport3D.CameraController.RotationSensitivity = 1.0;
-                Viewport3D.CameraController.ZoomSensitivity = 1.0;
-                Viewport3D.CameraController.UpDownPanSensitivity = 1.0;
-                Viewport3D.CameraController.LeftRightPanSensitivity = 1.0;
-                Viewport3D.CameraController.IsInertiaEnabled = true;
+                // Configure mouse gestures for optimal control
+                Viewport3D.RotateGesture = new MouseGesture(MouseAction.LeftClick);
+                Viewport3D.PanGesture = new MouseGesture(MouseAction.RightClick);
+                Viewport3D.ZoomGesture = new MouseGesture(MouseAction.MiddleClick);
+                Viewport3D.ZoomGesture2 = new MouseGesture(MouseAction.WheelClick);
+
+                // IMPORTANT FIX: Do not set gestures to null as it causes ArgumentNullException
+                // Instead, disable the functionality through other properties
+                Viewport3D.IsChangeFieldOfViewEnabled = false; // This disables ChangeFieldOfViewGesture
+
+                // For ZoomRectangleGesture, we don't set it to null, we just don't assign it
+                // The default behavior will be used
+
+                // Fine-tune camera controller settings
+                if (Viewport3D.CameraController != null)
+                {
+                    Viewport3D.CameraController.CameraRotationMode = CameraRotationMode.Trackball;
+                    Viewport3D.CameraController.InfiniteSpin = false;
+                    Viewport3D.CameraController.RotationSensitivity = RotationSensitivity;
+                    Viewport3D.CameraController.ZoomSensitivity = ZoomSensitivity;
+                    Viewport3D.CameraController.UpDownPanSensitivity = PanSensitivity;
+                    Viewport3D.CameraController.LeftRightPanSensitivity = PanSensitivity;
+                    Viewport3D.CameraController.IsInertiaEnabled = true;
+
+                    // Additional camera controller optimizations
+                    Viewport3D.CameraController.RotateAroundMouseDownPoint = true;
+                    Viewport3D.CameraController.ZoomAroundMouseDownPoint = true;
+                    Viewport3D.CameraController.ShowCameraTarget = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error configuring mouse gestures: {ex.Message}");
+                // Fallback to default gestures if custom configuration fails
+                try
+                {
+                    // Reset to default gestures
+                    Viewport3D.RotateGesture = new MouseGesture(MouseAction.LeftClick);
+                    Viewport3D.PanGesture = new MouseGesture(MouseAction.RightClick);
+                    Viewport3D.ZoomGesture = new MouseGesture(MouseAction.MiddleClick);
+                }
+                catch
+                {
+                    // If even defaults fail, just continue with whatever works
+                }
             }
         }
 
@@ -335,7 +828,7 @@ namespace SliceX.ViewModels
 
             // Get bounds of all transformed vertices
             var transformedPoints = geometry.Positions.Select(p => transform.Transform(p)).ToList();
-            
+
             if (transformedPoints.Count == 0)
                 return new Rect3D();
 
@@ -357,7 +850,7 @@ namespace SliceX.ViewModels
 
             // Get current transformed bounds
             var bounds = GetTransformedBounds();
-            
+
             // Calculate center of transformed model
             var centerX = bounds.X + bounds.SizeX / 2;
             var centerY = bounds.Y + bounds.SizeY / 2;
@@ -368,13 +861,13 @@ namespace SliceX.ViewModels
 
             // Get existing transform group or create new one
             var transformGroup = CurrentModel.Transform as Transform3DGroup ?? new Transform3DGroup();
-            
+
             // Add the centering translation
             transformGroup.Children.Add(centerTranslation);
-            
+
             CurrentModel.Transform = transformGroup;
             UpdateModelVisual();
-            
+
             StatusMessage = "Model centered (rotation preserved)";
         }
 
@@ -386,7 +879,7 @@ namespace SliceX.ViewModels
 
             // Get current transformed bounds
             var bounds = GetTransformedBounds();
-            
+
             // Calculate center and bottom of transformed model
             var centerX = bounds.X + bounds.SizeX / 2;
             var centerY = bounds.Y + bounds.SizeY / 2;
@@ -397,13 +890,13 @@ namespace SliceX.ViewModels
 
             // Get existing transform group or create new one
             var transformGroup = CurrentModel.Transform as Transform3DGroup ?? new Transform3DGroup();
-            
+
             // Add the platform placement translation
             transformGroup.Children.Add(platformTranslation);
-            
+
             CurrentModel.Transform = transformGroup;
             UpdateModelVisual();
-            
+
             StatusMessage = "Model placed on platform (rotation preserved)";
         }
 
@@ -537,174 +1030,174 @@ namespace SliceX.ViewModels
         }
 
         [RelayCommand]
-private async void SliceModel()
-{
-    if (CurrentModel == null)
-    {
-        MessageBox.Show("Please load a model first.", "No Model",
-            MessageBoxButton.OK, MessageBoxImage.Warning);
-        return;
-    }
-
-    try
-    {
-        StatusMessage = "Slicing model...";
-
-        if (PrinterSettings.LayerThickness <= 0 || PrinterSettings.LayerThickness > 1)
+        private async void SliceModel()
         {
-            MessageBox.Show("Layer thickness must be between 0.01 and 1.0 mm",
-                "Invalid Settings", MessageBoxButton.OK, MessageBoxImage.Warning);
-            StatusMessage = "Invalid layer thickness";
-            return;
-        }
-
-        // Perform slicing
-        var sliceResult = slicingEngine.SliceModel(CurrentModel, PrinterSettings);
-
-        StatusMessage = $"Slicing complete: {sliceResult.Layers.Count} layers generated";
-
-        // Ask user if they want to export
-        var result = MessageBox.Show(
-            $"Slicing completed successfully!\n\n" +
-            $"Layers: {sliceResult.Layers.Count}\n" +
-            $"Print Time: {sliceResult.PrintTime:F1} minutes\n" +
-            $"Exposure Time: {sliceResult.TotalExposureTime:F0}s\n" +
-            $"Lift Time: {sliceResult.TotalLiftTime:F0}s\n" +
-            $"Model Height: {CurrentModel.Size.Z:F2} mm\n" +
-            $"Layer Thickness: {PrinterSettings.LayerThickness:F3} mm\n" +
-            $"Estimated Resin: {sliceResult.EstimatedResinVolume:F1} ml\n" +
-            $"Estimated Cost: ${sliceResult.EstimatedCost:F2}\n\n" +
-            $"Do you want to export G-code and layer images to a ZIP file?",
-            "Slicing Complete",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Question);
-
-        if (result == MessageBoxResult.Yes)
-        {
-            // Show save dialog
-            var saveDialog = new SaveFileDialog
+            if (CurrentModel == null)
             {
-                Filter = "ZIP Archive (*.zip)|*.zip",
-                FileName = $"{Path.GetFileNameWithoutExtension(CurrentModel.FileName)}_sliced.zip",
-                Title = "Save Sliced Output"
-            };
+                MessageBox.Show("Please load a model first.", "No Model",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
-            if (saveDialog.ShowDialog() == true)
+            try
             {
-                // Create progress window
-                var progressWindow = new Window
+                StatusMessage = "Slicing model...";
+
+                if (PrinterSettings.LayerThickness <= 0 || PrinterSettings.LayerThickness > 1)
                 {
-                    Title = "Exporting...",
-                    Width = 400,
-                    Height = 150,
-                    WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                    ResizeMode = ResizeMode.NoResize,
-                    Background = new SolidColorBrush(Color.FromRgb(30, 30, 30))
-                };
-
-                var stackPanel = new StackPanel
-                {
-                    Margin = new Thickness(20)
-                };
-
-                var statusText = new TextBlock
-                {
-                    Text = "Generating G-code and layer images...",
-                    Foreground = Brushes.White,
-                    FontSize = 14,
-                    Margin = new Thickness(0, 0, 0, 10)
-                };
-
-                var progressBar = new System.Windows.Controls.ProgressBar
-                {
-                    Height = 25,
-                    Minimum = 0,
-                    Maximum = 100,
-                    Value = 0
-                };
-
-                var progressText = new TextBlock
-                {
-                    Text = "0%",
-                    Foreground = Brushes.White,
-                    FontSize = 12,
-                    Margin = new Thickness(0, 10, 0, 0),
-                    HorizontalAlignment = HorizontalAlignment.Center
-                };
-
-                stackPanel.Children.Add(statusText);
-                stackPanel.Children.Add(progressBar);
-                stackPanel.Children.Add(progressText);
-                progressWindow.Content = stackPanel;
-
-                progressWindow.Show();
-
-                try
-                {
-                    StatusMessage = "Exporting to ZIP...";
-
-                    // Export in background
-                    var exporter = new SliceExporter();
-                    var progress = new Progress<int>(percent =>
-                    {
-                        progressBar.Value = percent;
-                        progressText.Text = $"{percent}%";
-                        statusText.Text = percent < 100 
-                            ? $"Generating layer images... ({percent}%)" 
-                            : "Finalizing ZIP file...";
-                    });
-
-                    await Task.Run(() =>
-                    {
-                        exporter.ExportToZip(CurrentModel, sliceResult, PrinterSettings, 
-                                            saveDialog.FileName, progress);
-                    });
-
-                    progressWindow.Close();
-
-                    StatusMessage = "Export complete!";
-                    MessageBox.Show(
-                        $"Export completed successfully!\n\n" +
-                        $"Output saved to:\n{saveDialog.FileName}\n\n" +
-                        $"The ZIP contains:\n" +
-                        $"• output.gcode - G-code file\n" +
-                        $"• layers/ - {sliceResult.TotalLayers} layer images\n" +
-                        $"• metadata.txt - Print information",
-                        "Export Complete",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                    MessageBox.Show("Layer thickness must be between 0.01 and 1.0 mm",
+                        "Invalid Settings", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    StatusMessage = "Invalid layer thickness";
+                    return;
                 }
-                catch (Exception ex)
+
+                // Perform slicing
+                var sliceResult = slicingEngine.SliceModel(CurrentModel, PrinterSettings);
+
+                StatusMessage = $"Slicing complete: {sliceResult.Layers.Count} layers generated";
+
+                // Ask user if they want to export
+                var result = MessageBox.Show(
+                    $"Slicing completed successfully!\n\n" +
+                    $"Layers: {sliceResult.Layers.Count}\n" +
+                    $"Print Time: {sliceResult.PrintTime:F1} minutes\n" +
+                    $"Exposure Time: {sliceResult.TotalExposureTime:F0}s\n" +
+                    $"Lift Time: {sliceResult.TotalLiftTime:F0}s\n" +
+                    $"Model Height: {CurrentModel.Size.Z:F2} mm\n" +
+                    $"Layer Thickness: {PrinterSettings.LayerThickness:F3} mm\n" +
+                    $"Estimated Resin: {sliceResult.EstimatedResinVolume:F1} ml\n" +
+                    $"Estimated Cost: ${sliceResult.EstimatedCost:F2}\n\n" +
+                    $"Do you want to export G-code and layer images to a ZIP file?",
+                    "Slicing Complete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
                 {
-                    progressWindow.Close();
-                    MessageBox.Show($"Error during export: {ex.Message}", "Export Error",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
-                    StatusMessage = "Export failed";
+                    // Show save dialog
+                    var saveDialog = new SaveFileDialog
+                    {
+                        Filter = "ZIP Archive (*.zip)|*.zip",
+                        FileName = $"{Path.GetFileNameWithoutExtension(CurrentModel.FileName)}_sliced.zip",
+                        Title = "Save Sliced Output"
+                    };
+
+                    if (saveDialog.ShowDialog() == true)
+                    {
+                        // Create progress window
+                        var progressWindow = new Window
+                        {
+                            Title = "Exporting...",
+                            Width = 400,
+                            Height = 150,
+                            WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                            ResizeMode = ResizeMode.NoResize,
+                            Background = new SolidColorBrush(Color.FromRgb(30, 30, 30))
+                        };
+
+                        var stackPanel = new StackPanel
+                        {
+                            Margin = new Thickness(20)
+                        };
+
+                        var statusText = new TextBlock
+                        {
+                            Text = "Generating G-code and layer images...",
+                            Foreground = Brushes.White,
+                            FontSize = 14,
+                            Margin = new Thickness(0, 0, 0, 10)
+                        };
+
+                        var progressBar = new System.Windows.Controls.ProgressBar
+                        {
+                            Height = 25,
+                            Minimum = 0,
+                            Maximum = 100,
+                            Value = 0
+                        };
+
+                        var progressText = new TextBlock
+                        {
+                            Text = "0%",
+                            Foreground = Brushes.White,
+                            FontSize = 12,
+                            Margin = new Thickness(0, 10, 0, 0),
+                            HorizontalAlignment = HorizontalAlignment.Center
+                        };
+
+                        stackPanel.Children.Add(statusText);
+                        stackPanel.Children.Add(progressBar);
+                        stackPanel.Children.Add(progressText);
+                        progressWindow.Content = stackPanel;
+
+                        progressWindow.Show();
+
+                        try
+                        {
+                            StatusMessage = "Exporting to ZIP...";
+
+                            // Export in background
+                            var exporter = new SliceExporter();
+                            var progress = new Progress<int>(percent =>
+                            {
+                                progressBar.Value = percent;
+                                progressText.Text = $"{percent}%";
+                                statusText.Text = percent < 100
+                                    ? $"Generating layer images... ({percent}%)"
+                                    : "Finalizing ZIP file...";
+                            });
+
+                            await Task.Run(() =>
+                            {
+                                exporter.ExportToZip(CurrentModel, sliceResult, PrinterSettings,
+                                                    saveDialog.FileName, progress);
+                            });
+
+                            progressWindow.Close();
+
+                            StatusMessage = "Export complete!";
+                            MessageBox.Show(
+                                $"Export completed successfully!\n\n" +
+                                $"Output saved to:\n{saveDialog.FileName}\n\n" +
+                                $"The ZIP contains:\n" +
+                                $"• output.gcode - G-code file\n" +
+                                $"• layers/ - {sliceResult.TotalLayers} layer images\n" +
+                                $"• metadata.txt - Print information",
+                                "Export Complete",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Information);
+                        }
+                        catch (Exception ex)
+                        {
+                            progressWindow.Close();
+                            MessageBox.Show($"Error during export: {ex.Message}", "Export Error",
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                            StatusMessage = "Export failed";
+                        }
+                    }
                 }
             }
+            catch (OutOfMemoryException)
+            {
+                MessageBox.Show("Out of memory error during slicing.\n\n" +
+                    "Try increasing the layer thickness or reducing the model size.",
+                    "Memory Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                StatusMessage = "Slicing failed - Out of memory";
+            }
+            catch (InvalidOperationException ex)
+            {
+                MessageBox.Show(ex.Message, "Slicing Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                StatusMessage = "Slicing failed";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error during slicing: {ex.Message}", "Slicing Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                StatusMessage = "Slicing failed";
+            }
         }
-    }
-    catch (OutOfMemoryException)
-    {
-        MessageBox.Show("Out of memory error during slicing.\n\n" +
-            "Try increasing the layer thickness or reducing the model size.",
-            "Memory Error",
-            MessageBoxButton.OK, MessageBoxImage.Error);
-        StatusMessage = "Slicing failed - Out of memory";
-    }
-    catch (InvalidOperationException ex)
-    {
-        MessageBox.Show(ex.Message, "Slicing Error",
-            MessageBoxButton.OK, MessageBoxImage.Error);
-        StatusMessage = "Slicing failed";
-    }
-    catch (Exception ex)
-    {
-        MessageBox.Show($"Error during slicing: {ex.Message}", "Slicing Error",
-            MessageBoxButton.OK, MessageBoxImage.Error);
-        StatusMessage = "Slicing failed";
-    }
-}
 
 
         [RelayCommand]
