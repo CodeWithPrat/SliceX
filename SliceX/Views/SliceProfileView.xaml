@@ -4,227 +4,423 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800"
-             Background="#1e1e1e">
+             d:DesignHeight="600" d:DesignWidth="900"
+             Background="#1a1a1a">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="20">
+    <UserControl.Resources>
+        <!-- Enhanced GroupBox Style -->
+        <Style x:Key="EnhancedGroupBox" TargetType="GroupBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#2a2a2a"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GroupBox">
+                        <Grid>
+                            <Border Background="#242424" 
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="8">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="Black" Opacity="0.3" BlurRadius="10" ShadowDepth="2"/>
+                                </Border.Effect>
+                            </Border>
+                            <StackPanel>
+                                <Border Background="#00d4ff" Height="3" CornerRadius="2,2,0,0" 
+                                        HorizontalAlignment="Stretch" Margin="0,0,0,0"/>
+                                <TextBlock Text="{TemplateBinding Header}" 
+                                          FontSize="15" FontWeight="SemiBold"
+                                          Foreground="#00d4ff" 
+                                          Margin="15,12,15,10"/>
+                                <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                            </StackPanel>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-            <!-- Profile Selection -->
-            <GroupBox Header="Profile in Use:" Foreground="White" BorderBrush="#3f3f46" Margin="0,0,0,15">
-                <StackPanel Margin="10">
-                    <ComboBox ItemsSource="{Binding SliceProfiles}" 
-                              SelectedItem="{Binding SelectedSliceProfile}"
-                              Background="#2d2d30" Foreground="White" 
-                              BorderBrush="#3f3f46" Margin="0,0,0,10"/>
-                    
-                    <TextBlock Text="Configured Slicing Profiles" FontWeight="Bold" 
-                               Foreground="#00d4ff" Margin="0,0,0,5"/>
-                    <TextBlock Text="All Profiles:" Foreground="#e0e0e0" Margin="0,0,0,5"/>
-                    
-                    <ListBox ItemsSource="{Binding AllSliceProfiles}" 
-                             Background="#2d2d30" Foreground="White"
-                             BorderBrush="#3f3f46" Height="80" Margin="0,0,0,10"/>
-                    
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="Create" Command="{Binding CreateSliceProfileCommand}" 
-                                Style="{StaticResource ModernButton}" Margin="0,0,10,0" Padding="10,5"/>
-                        <Button Content="Delete" Command="{Binding DeleteSliceProfileCommand}" 
-                                Style="{StaticResource ModernButton}" Padding="10,5"/>
+        <!-- Enhanced Tab Style -->
+        <Style x:Key="EnhancedTabItem" TargetType="TabItem">
+            <Setter Property="Foreground" Value="#b0b0b0"/>
+            <Setter Property="Background" Value="#2d2d30"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border Name="Border" Background="{TemplateBinding Background}" 
+                                BorderThickness="0" CornerRadius="6,6,0,0" 
+                                Padding="{TemplateBinding Padding}" Margin="0,0,2,0">
+                            <ContentPresenter ContentSource="Header" 
+                                            HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#00d4ff"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#3a3a3c"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Section Header Style -->
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#00d4ff"/>
+            <Setter Property="Margin" Value="0,15,0,8"/>
+        </Style>
+
+        <!-- Label Style -->
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#b0b0b0"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <!-- Input Container Style -->
+        <Style x:Key="InputContainer" TargetType="Border">
+            <Setter Property="Background" Value="#2d2d30"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="25,20">
+        <StackPanel MaxWidth="1200">
+
+            <!-- Header -->
+            <TextBlock Text="Slice Profile Configuration" FontSize="24" FontWeight="Bold" 
+                       Foreground="White" Margin="0,0,0,25"/>
+
+            <!-- Profile Management -->
+            <GroupBox Header="Profile Management" Style="{StaticResource EnhancedGroupBox}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Active Profile -->
+                    <StackPanel Grid.Row="0" Grid.Column="0">
+                        <TextBlock Text="ACTIVE PROFILE" Style="{StaticResource FieldLabel}"/>
+                        <ComboBox ItemsSource="{Binding SliceProfiles}" 
+                                  SelectedItem="{Binding SelectedSliceProfile}"
+                                  Background="#2d2d30" Foreground="White" 
+                                  BorderBrush="#3f3f46" Height="36" Padding="10,0" FontSize="13"/>
                     </StackPanel>
-                </StackPanel>
+
+                    <!-- Profile Actions -->
+                    <StackPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Bottom">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="＋ Create" Command="{Binding CreateSliceProfileCommand}" 
+                                    Style="{StaticResource ModernButton}" 
+                                    Margin="0,0,8,0" Padding="12,8" Height="36"/>
+                            <Button Content="✕ Delete" Command="{Binding DeleteSliceProfileCommand}" 
+                                    Style="{StaticResource ModernButton}" 
+                                    Padding="12,8" Height="36" Background="#dc3545"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- All Profiles List -->
+                    <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,20,0,0">
+                        <TextBlock Text="ALL CONFIGURED PROFILES" Style="{StaticResource FieldLabel}"/>
+                        <ListBox ItemsSource="{Binding AllSliceProfiles}" 
+                                 Background="#2d2d30" Foreground="White"
+                                 BorderBrush="#3f3f46" BorderThickness="1"
+                                 Height="100" Padding="8"/>
+                    </StackPanel>
+                </Grid>
             </GroupBox>
 
             <!-- Profile Configuration -->
-            <GroupBox Header="Profile Configuration" Foreground="White" BorderBrush="#3f3f46" Margin="0,0,0,15">
-                <TabControl>
-                    <TabItem Header="Options" Style="{StaticResource ModernTabItem}">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" Height="400">
-                            <StackPanel Margin="10">
+            <GroupBox Header="Profile Configuration" Style="{StaticResource EnhancedGroupBox}">
+                <TabControl Background="#1a1a1a" BorderThickness="0">
+                    <!-- Options Tab -->
+                    <TabItem Header="⚙ Options" Style="{StaticResource EnhancedTabItem}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Height="500" 
+                                    Background="#1e1e1e" Margin="0,10,0,0">
+                            <StackPanel Margin="20">
 
-                                <!-- Basic Settings -->
-                                <TextBlock Text="Profile Name" Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                                <TextBox Text="{Binding PrinterSettings.ProfileName}" 
-                                         Style="{StaticResource ModernTextBox}" Margin="0,0,0,10"/>
+                                <!-- Basic Information -->
+                                <TextBlock Text="BASIC INFORMATION" Style="{StaticResource SectionHeader}"/>
+                                
+                                <Border Style="{StaticResource InputContainer}">
+                                    <StackPanel>
+                                        <TextBlock Text="PROFILE NAME" Style="{StaticResource FieldLabel}"/>
+                                        <TextBox Text="{Binding PrinterSettings.ProfileName}" 
+                                                 Style="{StaticResource ModernTextBox}" Height="36"/>
+                                    </StackPanel>
+                                </Border>
 
-                                <TextBlock Text="Notes:" Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                                <TextBox Text="{Binding PrinterSettings.Notes}" Height="40" 
-                                         TextWrapping="Wrap" AcceptsReturn="True"
-                                         Style="{StaticResource ModernTextBox}" Margin="0,0,0,15"/>
+                                <Border Style="{StaticResource InputContainer}">
+                                    <StackPanel>
+                                        <TextBlock Text="NOTES" Style="{StaticResource FieldLabel}"/>
+                                        <TextBox Text="{Binding PrinterSettings.Notes}" 
+                                                 Height="70" TextWrapping="Wrap" AcceptsReturn="True"
+                                                 Style="{StaticResource ModernTextBox}" 
+                                                 VerticalScrollBarVisibility="Auto"/>
+                                    </StackPanel>
+                                </Border>
 
-                                <!-- Slice Settings -->
-                                <TextBlock Text="Slice Thickness (mm)" Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                                <TextBox Text="{Binding PrinterSettings.LayerThickness}" 
-                                         Style="{StaticResource ModernTextBox}" Margin="0,0,0,10"/>
-
-                                <TextBlock Text="Exposure Time Per Layer (ms)" Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                                <TextBox Text="{Binding PrinterSettings.ExposureTime}" 
-                                         Style="{StaticResource ModernTextBox}" Margin="0,0,0,15"/>
+                                <!-- Layer Settings -->
+                                <TextBlock Text="LAYER SETTINGS" Style="{StaticResource SectionHeader}"/>
+                                
+                                <Border Style="{StaticResource InputContainer}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="15"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="SLICE THICKNESS (mm)" Style="{StaticResource FieldLabel}"/>
+                                            <TextBox Text="{Binding PrinterSettings.LayerThickness}" 
+                                                     Style="{StaticResource ModernTextBox}" Height="36"/>
+                                        </StackPanel>
+                                        
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="EXPOSURE TIME (ms)" Style="{StaticResource FieldLabel}"/>
+                                            <TextBox Text="{Binding PrinterSettings.ExposureTime}" 
+                                                     Style="{StaticResource ModernTextBox}" Height="36"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
 
                                 <!-- Bottom Layers -->
-                                <Grid Margin="0,0,0,15">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Bottom Layers Exposure Time (ms)" 
-                                                   Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                                        <TextBox Text="{Binding PrinterSettings.BottomExposureTime}" 
-                                                 Style="{StaticResource ModernTextBox}"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                        <TextBlock Text="# Layers" Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                                        <TextBox Text="{Binding PrinterSettings.BottomLayers}" 
-                                                 Style="{StaticResource ModernTextBox}"/>
-                                    </StackPanel>
-                                </Grid>
+                                <TextBlock Text="BOTTOM LAYERS" Style="{StaticResource SectionHeader}"/>
+                                
+                                <Border Style="{StaticResource InputContainer}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*"/>
+                                            <ColumnDefinition Width="15"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="BOTTOM EXPOSURE TIME (ms)" Style="{StaticResource FieldLabel}"/>
+                                            <TextBox Text="{Binding PrinterSettings.BottomExposureTime}" 
+                                                     Style="{StaticResource ModernTextBox}" Height="36"/>
+                                        </StackPanel>
+                                        
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="LAYER COUNT" Style="{StaticResource FieldLabel}"/>
+                                            <TextBox Text="{Binding PrinterSettings.BottomLayers}" 
+                                                     Style="{StaticResource ModernTextBox}" Height="36"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
 
-                                <!-- Checkboxes -->
-                                <CheckBox Content="Enable Anti-Aliasing" 
-                                          IsChecked="{Binding PrinterSettings.EnableAntiAliasing}"
-                                          Foreground="#e0e0e0" Margin="0,0,0,5"/>
-                                <CheckBox Content="Export Images &amp; GCode" 
-                                          IsChecked="{Binding PrinterSettings.ExportImagesAndGCode}"
-                                          Foreground="#e0e0e0" Margin="0,0,0,15"/>
+                                <!-- Processing Options -->
+                                <TextBlock Text="PROCESSING OPTIONS" Style="{StaticResource SectionHeader}"/>
+                                
+                                <Border Style="{StaticResource InputContainer}">
+                                    <StackPanel>
+                                        <CheckBox Content="Enable Anti-Aliasing" 
+                                                  IsChecked="{Binding PrinterSettings.EnableAntiAliasing}"
+                                                  Foreground="White" FontSize="12" Margin="0,0,0,10"/>
+                                        <CheckBox Content="Export Images &amp; GCode" 
+                                                  IsChecked="{Binding PrinterSettings.ExportImagesAndGCode}"
+                                                  Foreground="White" FontSize="12"/>
+                                    </StackPanel>
+                                </Border>
 
-                                <!-- Image Export Options -->
-                                <TextBlock Text="Image Slice Export Options" FontWeight="Bold" 
-                                           Foreground="#00d4ff" Margin="0,0,0,5"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
-                                    <RadioButton Content="Zip File" IsChecked="{Binding ExportToZip}" 
-                                                 Foreground="#e0e0e0" Margin="0,0,10,0"/>
-                                    <RadioButton Content="Subdirectory" IsChecked="{Binding ExportToDirectory}" 
-                                                 Foreground="#e0e0e0"/>
-                                </StackPanel>
+                                <!-- Export Options -->
+                                <TextBlock Text="IMAGE EXPORT OPTIONS" Style="{StaticResource SectionHeader}"/>
+                                
+                                <Border Style="{StaticResource InputContainer}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <RadioButton Content="📦 Zip File" 
+                                                     IsChecked="{Binding ExportToZip}" 
+                                                     Foreground="White" FontSize="12" Margin="0,0,20,0"/>
+                                        <RadioButton Content="📁 Subdirectory" 
+                                                     IsChecked="{Binding ExportToDirectory}" 
+                                                     Foreground="White" FontSize="12"/>
+                                    </StackPanel>
+                                </Border>
 
                                 <!-- Image Offsets -->
-                                <TextBlock Text="Image Pixel Offsets" FontWeight="Bold" 
-                                           Foreground="#00d4ff" Margin="0,0,0,5"/>
-                                <Grid Margin="0,0,0,15">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="X Offset" Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                                        <TextBox Text="{Binding PrinterSettings.ImageOffsetX}" 
-                                                 Style="{StaticResource ModernTextBox}"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                        <TextBlock Text="Y Offset" Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                                        <TextBox Text="{Binding PrinterSettings.ImageOffsetY}" 
-                                                 Style="{StaticResource ModernTextBox}"/>
-                                    </StackPanel>
-                                </Grid>
+                                <TextBlock Text="IMAGE PIXEL OFFSETS" Style="{StaticResource SectionHeader}"/>
+                                
+                                <Border Style="{StaticResource InputContainer}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="15"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="X OFFSET" Style="{StaticResource FieldLabel}"/>
+                                            <TextBox Text="{Binding PrinterSettings.ImageOffsetX}" 
+                                                     Style="{StaticResource ModernTextBox}" Height="36"/>
+                                        </StackPanel>
+                                        
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Text="Y OFFSET" Style="{StaticResource FieldLabel}"/>
+                                            <TextBox Text="{Binding PrinterSettings.ImageOffsetY}" 
+                                                     Style="{StaticResource ModernTextBox}" Height="36"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
 
-                                <!-- Resin Price -->
-                                <TextBlock Text="Resin Price per liter" Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                                <TextBox Text="{Binding PrinterSettings.ResinPricePerLiter}" 
-                                         Style="{StaticResource ModernTextBox}" Margin="0,0,0,15"/>
+                                <!-- Cost Calculation -->
+                                <TextBlock Text="COST CALCULATION" Style="{StaticResource SectionHeader}"/>
+                                
+                                <Border Style="{StaticResource InputContainer}">
+                                    <StackPanel>
+                                        <TextBlock Text="RESIN PRICE PER LITER" Style="{StaticResource FieldLabel}"/>
+                                        <TextBox Text="{Binding PrinterSettings.ResinPricePerLiter}" 
+                                                 Style="{StaticResource ModernTextBox}" Height="36"/>
+                                    </StackPanel>
+                                </Border>
 
                                 <!-- Lift Settings -->
-                                <TextBlock Text="Lift Settings" FontWeight="Bold" 
-                                           Foreground="#00d4ff" Margin="0,0,0,5"/>
+                                <TextBlock Text="LIFT SETTINGS" Style="{StaticResource SectionHeader}"/>
                                 
-                                <CheckBox Content="Use Main-Lift GCode instead of Lift and Sequence" 
-                                          IsChecked="{Binding UseMainLiftGCode}" 
-                                          Foreground="#e0e0e0" Margin="0,0,0,10"/>
+                                <Border Style="{StaticResource InputContainer}">
+                                    <StackPanel>
+                                        <CheckBox Content="Use Main-Lift GCode (overrides Lift and Sequence settings)" 
+                                                  IsChecked="{Binding UseMainLiftGCode}" 
+                                                  Foreground="White" FontSize="12" Margin="0,0,0,15"/>
+                                        
+                                        <Grid Margin="0,0,0,15">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="15"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="LIFT &amp; SEQUENCE TIME (ms)" 
+                                                           Style="{StaticResource FieldLabel}"/>
+                                                <TextBox Text="{Binding PrinterSettings.LiftSequenceTime}" 
+                                                         Style="{StaticResource ModernTextBox}" Height="36"/>
+                                            </StackPanel>
+                                            
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="AUTO CALCULATE" Style="{StaticResource FieldLabel}"/>
+                                                <CheckBox IsChecked="{Binding AutoCalcLiftTime}" 
+                                                          Foreground="White" VerticalAlignment="Center" 
+                                                          Margin="0,8,0,0"/>
+                                            </StackPanel>
+                                        </Grid>
 
-                                <Grid Margin="0,0,0,15">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Lift and Sequence Time (ms)" 
-                                                   Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                                        <TextBox Text="{Binding PrinterSettings.LiftSequenceTime}" 
-                                                 Style="{StaticResource ModernTextBox}"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                        <TextBlock Text="Auto Calc" Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                                        <CheckBox IsChecked="{Binding AutoCalcLiftTime}" 
-                                                  Foreground="#e0e0e0" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Grid>
+                                        <Grid Margin="0,0,0,15">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="15"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="Z LIFT DISTANCE (mm)" 
+                                                           Style="{StaticResource FieldLabel}"/>
+                                                <TextBox Text="{Binding PrinterSettings.LiftHeight}" 
+                                                         Style="{StaticResource ModernTextBox}" Height="36"/>
+                                            </StackPanel>
+                                            
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="BUILD DIRECTION" 
+                                                           Style="{StaticResource FieldLabel}"/>
+                                                <ComboBox ItemsSource="{Binding BuildDirections}" 
+                                                          SelectedItem="{Binding PrinterSettings.BuildDirection}"
+                                                          Background="#1e1e1e" Foreground="White" 
+                                                          BorderBrush="#3f3f46" Height="36" Padding="10,0"/>
+                                            </StackPanel>
+                                        </Grid>
 
-                                <!-- Z Lift Settings -->
-                                <Grid Margin="0,0,0,15">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Z Lift Distance (mm)" 
-                                                   Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                                        <TextBox Text="{Binding PrinterSettings.LiftHeight}" 
-                                                 Style="{StaticResource ModernTextBox}"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                        <TextBlock Text="Build Direction" 
-                                                   Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                                        <ComboBox ItemsSource="{Binding BuildDirections}" 
-                                                  SelectedItem="{Binding PrinterSettings.BuildDirection}"
-                                                  Background="#2d2d30" Foreground="White" 
-                                                  BorderBrush="#3f3f46"/>
-                                    </StackPanel>
-                                </Grid>
+                                        <Grid Margin="0,0,0,15">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="15"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="Z LIFT SPEED (mm/m)" 
+                                                           Style="{StaticResource FieldLabel}"/>
+                                                <TextBox Text="{Binding PrinterSettings.LiftSpeed}" 
+                                                         Style="{StaticResource ModernTextBox}" Height="36"/>
+                                            </StackPanel>
+                                            
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="Z RETRACT SPEED (mm/m)" 
+                                                           Style="{StaticResource FieldLabel}"/>
+                                                <TextBox Text="{Binding PrinterSettings.RetractSpeed}" 
+                                                         Style="{StaticResource ModernTextBox}" Height="36"/>
+                                            </StackPanel>
+                                        </Grid>
 
-                                <!-- Speed Settings -->
-                                <Grid Margin="0,0,0,15">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Z Lift Speed (mm/m)" 
-                                                   Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                                        <TextBox Text="{Binding PrinterSettings.LiftSpeed}" 
-                                                 Style="{StaticResource ModernTextBox}"/>
+                                        <StackPanel>
+                                            <TextBlock Text="SLIDE / TILT VALUE" Style="{StaticResource FieldLabel}"/>
+                                            <TextBox Text="{Binding PrinterSettings.SlideTiltValue}" 
+                                                     Style="{StaticResource ModernTextBox}" Height="36"/>
+                                        </StackPanel>
                                     </StackPanel>
-                                    <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                        <TextBlock Text="Z Lift Retract Speed (mm/m)" 
-                                                   Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                                        <TextBox Text="{Binding PrinterSettings.RetractSpeed}" 
-                                                 Style="{StaticResource ModernTextBox}"/>
-                                    </StackPanel>
-                                </Grid>
-
-                                <!-- Slide/Tilt -->
-                                <TextBlock Text="Slide / Tilt Value" Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                                <TextBox Text="{Binding PrinterSettings.SlideTiltValue}" 
-                                         Style="{StaticResource ModernTextBox}" Margin="0,0,0,15"/>
+                                </Border>
 
                                 <!-- Image Reflection -->
-                                <TextBlock Text="Image Reflection" FontWeight="Bold" 
-                                           Foreground="#00d4ff" Margin="0,0,0,5"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
-                                    <CheckBox Content="Reflect X" IsChecked="{Binding PrinterSettings.ReflectX}" 
-                                              Foreground="#e0e0e0" Margin="0,0,10,0"/>
-                                    <CheckBox Content="Reflect Y" IsChecked="{Binding PrinterSettings.ReflectY}" 
-                                              Foreground="#e0e0e0"/>
-                                </StackPanel>
+                                <TextBlock Text="IMAGE REFLECTION" Style="{StaticResource SectionHeader}"/>
+                                
+                                <Border Style="{StaticResource InputContainer}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <CheckBox Content="⇄ Reflect X" 
+                                                  IsChecked="{Binding PrinterSettings.ReflectX}" 
+                                                  Foreground="White" FontSize="12" Margin="0,0,20,0"/>
+                                        <CheckBox Content="⇅ Reflect Y" 
+                                                  IsChecked="{Binding PrinterSettings.ReflectY}" 
+                                                  Foreground="White" FontSize="12"/>
+                                    </StackPanel>
+                                </Border>
 
                             </StackPanel>
                         </ScrollViewer>
                     </TabItem>
 
-                    <TabItem Header="GCode" Style="{StaticResource ModernTabItem}">
-                        <StackPanel Margin="10">
-                            <TextBlock Text="GCode Configuration" Foreground="White" FontSize="14" 
-                                       FontWeight="Bold" Margin="0,0,0,10"/>
-                            <TextBlock Text="GCode settings will be implemented here..." 
-                                       Foreground="#e0e0e0"/>
-                        </StackPanel>
+                    <!-- GCode Tab -->
+                    <TabItem Header="&lt;/&gt; GCode" Style="{StaticResource EnhancedTabItem}">
+                        <Border Background="#1e1e1e" Margin="0,10,0,0" Padding="20">
+                            <StackPanel>
+                                <TextBlock Text="GCODE CONFIGURATION" Style="{StaticResource SectionHeader}"/>
+                                <Border Background="#2d2d30" CornerRadius="6" Padding="20" Margin="0,10,0,0">
+                                    <TextBlock Text="GCode settings will be implemented here..." 
+                                               Foreground="#888" FontStyle="Italic" FontSize="13"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
                     </TabItem>
                 </TabControl>
             </GroupBox>
 
             <!-- Apply Button -->
-            <Button Content="Apply" Command="{Binding ApplySliceProfileCommand}" 
-                    Style="{StaticResource PrimaryButton}" Padding="15,8" 
-                    HorizontalAlignment="Right"/>
+            <Border Background="#242424" CornerRadius="8" Padding="20" Margin="0,10,0,20">
+                <Button Content="✓ Apply Changes" 
+                        Command="{Binding ApplySliceProfileCommand}" 
+                        Style="{StaticResource PrimaryButton}" 
+                        Padding="25,12" FontSize="14" FontWeight="SemiBold"
+                        HorizontalAlignment="Right"/>
+            </Border>
 
         </StackPanel>
     </ScrollViewer>

@@ -17,4 +17,11 @@
     <PackageReference Include="SkiaSharp" Version="3.119.1" />
   </ItemGroup>
 
+<ItemGroup>
+  <Resource Include="Resources\CMTILogo.ico" />
+  <None Remove="Resources\CMTILogo.ico" />
+</ItemGroup>
+
+
+
 </Project>

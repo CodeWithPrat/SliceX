@@ -4,177 +4,322 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800"
-             Background="#1e1e1e">
+             d:DesignHeight="600" d:DesignWidth="900"
+             Background="#1a1a1a">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="20">
+    <UserControl.Resources>
+        <!-- Enhanced GroupBox Style -->
+        <Style x:Key="EnhancedGroupBox" TargetType="GroupBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#2a2a2a"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GroupBox">
+                        <Grid>
+                            <Border Background="#242424" 
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="8">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="Black" Opacity="0.3" BlurRadius="10" ShadowDepth="2"/>
+                                </Border.Effect>
+                            </Border>
+                            <StackPanel>
+                                <Border Background="#00d4ff" Height="3" CornerRadius="2,2,0,0" 
+                                        HorizontalAlignment="Stretch" Margin="0,0,0,0"/>
+                                <TextBlock Text="{TemplateBinding Header}" 
+                                          FontSize="15" FontWeight="SemiBold"
+                                          Foreground="#00d4ff" 
+                                          Margin="15,12,15,10"/>
+                                <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                            </StackPanel>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-            <!-- Profile Selection -->
-            <GroupBox Header="Profile in Use:" Foreground="White" BorderBrush="#3f3f46" Margin="0,0,0,15">
-                <StackPanel Margin="10">
-                    <ComboBox ItemsSource="{Binding MachineProfiles}" 
-                              SelectedItem="{Binding SelectedMachineProfile}"
-                              Background="#2d2d30" Foreground="White" 
-                              BorderBrush="#3f3f46" Margin="0,0,0,10"/>
-                    
-                    <TextBlock Text="Configured Machine Profiles" FontWeight="Bold" 
-                               Foreground="#00d4ff" Margin="0,0,0,5"/>
-                    <TextBlock Text="All Profiles:" Foreground="#e0e0e0" Margin="0,0,0,5"/>
-                    
-                    <ListBox ItemsSource="{Binding AllMachineProfiles}" 
-                             Background="#2d2d30" Foreground="White"
-                             BorderBrush="#3f3f46" Height="80" Margin="0,0,0,10"/>
-                    
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="Create" Command="{Binding CreateMachineProfileCommand}" 
-                                Style="{StaticResource ModernButton}" Margin="0,0,10,0" Padding="10,5"/>
-                        <Button Content="Delete" Command="{Binding DeleteMachineProfileCommand}" 
-                                Style="{StaticResource ModernButton}" Padding="10,5"/>
+        <!-- Section Header Style -->
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#00d4ff"/>
+            <Setter Property="Margin" Value="0,10,0,8"/>
+        </Style>
+
+        <!-- Label Style -->
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#b0b0b0"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="25,20">
+        <StackPanel MaxWidth="1200">
+
+            <!-- Header -->
+            <TextBlock Text="Machine Configuration" FontSize="24" FontWeight="Bold" 
+                       Foreground="White" Margin="0,0,0,25"/>
+
+            <!-- Profile Management Section -->
+            <GroupBox Header="Profile Management" Style="{StaticResource EnhancedGroupBox}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Active Profile -->
+                    <StackPanel Grid.Row="0" Grid.Column="0">
+                        <TextBlock Text="ACTIVE PROFILE" Style="{StaticResource FieldLabel}"/>
+                        <ComboBox ItemsSource="{Binding MachineProfiles}" 
+                                  SelectedItem="{Binding SelectedMachineProfile}"
+                                  Background="#2d2d30" Foreground="White" 
+                                  BorderBrush="#3f3f46" Height="36"
+                                  FontSize="13" Padding="10,0"/>
                     </StackPanel>
-                </StackPanel>
+
+                    <!-- Profile Actions -->
+                    <StackPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Bottom">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="＋ Create" Command="{Binding CreateMachineProfileCommand}" 
+                                    Style="{StaticResource ModernButton}" 
+                                    Margin="0,0,8,0" Padding="12,8" Height="36"/>
+                            <Button Content="✕ Delete" Command="{Binding DeleteMachineProfileCommand}" 
+                                    Style="{StaticResource ModernButton}" 
+                                    Padding="12,8" Height="36" Background="#dc3545"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- All Profiles List -->
+                    <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,20,0,0">
+                        <TextBlock Text="ALL CONFIGURED PROFILES" Style="{StaticResource FieldLabel}"/>
+                        <ListBox ItemsSource="{Binding AllMachineProfiles}" 
+                                 Background="#2d2d30" Foreground="White"
+                                 BorderBrush="#3f3f46" BorderThickness="1"
+                                 Height="100" Padding="8"/>
+                    </StackPanel>
+                </Grid>
             </GroupBox>
 
-            <!-- Machine Configuration -->
-            <GroupBox Header="Machine Configuration" Foreground="White" BorderBrush="#3f3f46" Margin="0,0,0,15">
-                <StackPanel Margin="10">
-                    <Grid>
+            <!-- Machine Configuration Section -->
+            <GroupBox Header="Machine Configuration" Style="{StaticResource EnhancedGroupBox}">
+                <StackPanel>
+                    <!-- Machine Type -->
+                    <Grid Margin="0,0,0,25">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="300"/>
                         </Grid.ColumnDefinitions>
                         
-                        <TextBlock Text="NullMachine" Grid.Column="0" Foreground="White" 
-                                   FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <Border Grid.Column="0" Background="#2d2d30" Padding="12,8" 
+                                CornerRadius="4" VerticalAlignment="Center">
+                            <TextBlock Text="NullMachine" Foreground="#00d4ff" 
+                                       FontWeight="SemiBold" FontSize="13"/>
+                        </Border>
                         
-                        <StackPanel Grid.Column="1">
-                            <TextBlock Text="Machine Type" Foreground="#e0e0e0" Margin="0,0,0,5"/>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="MACHINE TYPE" Style="{StaticResource FieldLabel}"/>
                             <ComboBox ItemsSource="{Binding MachineTypes}" 
                                       SelectedItem="{Binding SelectedMachineType}"
                                       Background="#2d2d30" Foreground="White" 
-                                      BorderBrush="#3f3f46"/>
+                                      BorderBrush="#3f3f46" Height="36" Padding="10,0"/>
                         </StackPanel>
                     </Grid>
 
                     <!-- Axis Configuration -->
-                    <TextBlock Text="Axis Configuration" FontWeight="Bold" 
-                               Foreground="#00d4ff" Margin="0,15,0,10"/>
+                    <TextBlock Text="AXIS CONFIGURATION" Style="{StaticResource SectionHeader}"/>
                     
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="80"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                    <Border Background="#2d2d30" CornerRadius="6" Padding="15" Margin="0,5,0,0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="15"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="10"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-                        <!-- Headers -->
-                        <TextBlock Text="Axis" Grid.Row="0" Grid.Column="0" FontWeight="Bold" Foreground="#00d4ff"/>
-                        <TextBlock Text="Length (mm)" Grid.Row="0" Grid.Column="1" FontWeight="Bold" Foreground="#00d4ff"/>
-                        <TextBlock Text="Max Feed Rate (mm/m)" Grid.Row="0" Grid.Column="2" FontWeight="Bold" Foreground="#00d4ff"/>
-                        <TextBlock Text="Driver" Grid.Row="0" Grid.Column="3" FontWeight="Bold" Foreground="#00d4ff"/>
-                        <TextBlock Text="Machine Connection" Grid.Row="0" Grid.Column="4" FontWeight="Bold" Foreground="#00d4ff"/>
+                            <!-- Headers -->
+                            <TextBlock Text="AXIS" Grid.Row="0" Grid.Column="0" 
+                                       Style="{StaticResource FieldLabel}" FontWeight="Bold"/>
+                            <TextBlock Text="LENGTH (mm)" Grid.Row="0" Grid.Column="1" 
+                                       Style="{StaticResource FieldLabel}" FontWeight="Bold" Margin="8,0,0,0"/>
+                            <TextBlock Text="MAX FEED RATE (mm/m)" Grid.Row="0" Grid.Column="2" 
+                                       Style="{StaticResource FieldLabel}" FontWeight="Bold" Margin="8,0,0,0"/>
+                            <TextBlock Text="DRIVER" Grid.Row="0" Grid.Column="3" 
+                                       Style="{StaticResource FieldLabel}" FontWeight="Bold" Margin="8,0,0,0"/>
+                            <TextBlock Text="CONNECTION" Grid.Row="0" Grid.Column="4" 
+                                       Style="{StaticResource FieldLabel}" FontWeight="Bold" Margin="8,0,0,0"/>
 
-                        <!-- X Axis -->
-                        <TextBlock Text="X" Grid.Row="1" Grid.Column="0" Foreground="White" VerticalAlignment="Center"/>
-                        <TextBox Text="{Binding XAxisLength}" Grid.Row="1" Grid.Column="1" 
-                                 Style="{StaticResource ModernTextBox}" Margin="2"/>
-                        <TextBox Text="{Binding XAxisFeedRate}" Grid.Row="1" Grid.Column="2" 
-                                 Style="{StaticResource ModernTextBox}" Margin="2"/>
-                        <ComboBox ItemsSource="{Binding Drivers}" SelectedItem="{Binding XAxisDriver}" 
-                                  Grid.Row="1" Grid.Column="3" Margin="2"
-                                  Background="#2d2d30" Foreground="White" BorderBrush="#3f3f46"/>
-                        <StackPanel Grid.Row="1" Grid.Column="4" Orientation="Horizontal" Margin="2">
-                            <ComboBox ItemsSource="{Binding ConnectionTypes}" 
-                                      SelectedItem="{Binding XAxisConnection}"
-                                      Background="#2d2d30" Foreground="White" 
-                                      BorderBrush="#3f3f46" Width="120"/>
-                            <TextBlock Text="Port: Com1" Foreground="#e0e0e0" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                            <Button Content="Configure" Command="{Binding ConfigureXAxisCommand}" 
-                                    Style="{StaticResource ModernButton}" Margin="10,0,0,0" Padding="5,2"/>
-                        </StackPanel>
+                            <!-- X Axis -->
+                            <Border Grid.Row="2" Grid.Column="0" Background="#00d4ff" 
+                                    CornerRadius="3" Padding="8,6" HorizontalAlignment="Center">
+                                <TextBlock Text="X" Foreground="Black" FontWeight="Bold" FontSize="13"/>
+                            </Border>
+                            <TextBox Text="{Binding XAxisLength}" Grid.Row="2" Grid.Column="1" 
+                                     Style="{StaticResource ModernTextBox}" Margin="8,0,8,0" Height="32"/>
+                            <TextBox Text="{Binding XAxisFeedRate}" Grid.Row="2" Grid.Column="2" 
+                                     Style="{StaticResource ModernTextBox}" Margin="0,0,8,0" Height="32"/>
+                            <ComboBox ItemsSource="{Binding Drivers}" SelectedItem="{Binding XAxisDriver}" 
+                                      Grid.Row="2" Grid.Column="3" Margin="0,0,8,0" Height="32"
+                                      Background="#1e1e1e" Foreground="White" BorderBrush="#3f3f46" Padding="8,0"/>
+                            <StackPanel Grid.Row="2" Grid.Column="4" Orientation="Horizontal">
+                                <ComboBox ItemsSource="{Binding ConnectionTypes}" 
+                                          SelectedItem="{Binding XAxisConnection}"
+                                          Background="#1e1e1e" Foreground="White" 
+                                          BorderBrush="#3f3f46" Width="100" Height="32" Padding="8,0"/>
+                                <TextBlock Text="Com1" Foreground="#888" VerticalAlignment="Center" 
+                                           Margin="8,0" FontSize="11"/>
+                                <Button Content="⚙" Command="{Binding ConfigureXAxisCommand}" 
+                                        Style="{StaticResource ModernButton}" 
+                                        Width="32" Height="32" Padding="0" FontSize="14"/>
+                            </StackPanel>
 
-                        <!-- Y Axis -->
-                        <TextBlock Text="Y" Grid.Row="2" Grid.Column="0" Foreground="White" VerticalAlignment="Center"/>
-                        <TextBox Text="{Binding YAxisLength}" Grid.Row="2" Grid.Column="1" 
-                                 Style="{StaticResource ModernTextBox}" Margin="2"/>
-                        <TextBox Text="{Binding YAxisFeedRate}" Grid.Row="2" Grid.Column="2" 
-                                 Style="{StaticResource ModernTextBox}" Margin="2"/>
-                        <ComboBox ItemsSource="{Binding Drivers}" SelectedItem="{Binding YAxisDriver}" 
-                                  Grid.Row="2" Grid.Column="3" Margin="2"
-                                  Background="#2d2d30" Foreground="White" BorderBrush="#3f3f46"/>
-                        <StackPanel Grid.Row="2" Grid.Column="4" Orientation="Horizontal" Margin="2">
-                            <ComboBox ItemsSource="{Binding ConnectionTypes}" 
-                                      SelectedItem="{Binding YAxisConnection}"
-                                      Background="#2d2d30" Foreground="White" 
-                                      BorderBrush="#3f3f46" Width="120"/>
-                            <TextBlock Text="Port: Com1" Foreground="#e0e0e0" VerticalAlignment="Center" Margin="10,0,0,0"/>
-                            <Button Content="Configure" Command="{Binding ConfigureYAxisCommand}" 
-                                    Style="{StaticResource ModernButton}" Margin="10,0,0,0" Padding="5,2"/>
-                        </StackPanel>
-                    </Grid>
+                            <!-- Y Axis -->
+                            <Border Grid.Row="4" Grid.Column="0" Background="#00d4ff" 
+                                    CornerRadius="3" Padding="8,6" HorizontalAlignment="Center">
+                                <TextBlock Text="Y" Foreground="Black" FontWeight="Bold" FontSize="13"/>
+                            </Border>
+                            <TextBox Text="{Binding YAxisLength}" Grid.Row="4" Grid.Column="1" 
+                                     Style="{StaticResource ModernTextBox}" Margin="8,0,8,0" Height="32"/>
+                            <TextBox Text="{Binding YAxisFeedRate}" Grid.Row="4" Grid.Column="2" 
+                                     Style="{StaticResource ModernTextBox}" Margin="0,0,8,0" Height="32"/>
+                            <ComboBox ItemsSource="{Binding Drivers}" SelectedItem="{Binding YAxisDriver}" 
+                                      Grid.Row="4" Grid.Column="3" Margin="0,0,8,0" Height="32"
+                                      Background="#1e1e1e" Foreground="White" BorderBrush="#3f3f46" Padding="8,0"/>
+                            <StackPanel Grid.Row="4" Grid.Column="4" Orientation="Horizontal">
+                                <ComboBox ItemsSource="{Binding ConnectionTypes}" 
+                                          SelectedItem="{Binding YAxisConnection}"
+                                          Background="#1e1e1e" Foreground="White" 
+                                          BorderBrush="#3f3f46" Width="100" Height="32" Padding="8,0"/>
+                                <TextBlock Text="Com1" Foreground="#888" VerticalAlignment="Center" 
+                                           Margin="8,0" FontSize="11"/>
+                                <Button Content="⚙" Command="{Binding ConfigureYAxisCommand}" 
+                                        Style="{StaticResource ModernButton}" 
+                                        Width="32" Height="32" Padding="0" FontSize="14"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                 </StackPanel>
             </GroupBox>
 
-            <!-- Display Configuration -->
-            <GroupBox Header="Display Configuration" Foreground="White" BorderBrush="#3f3f46" Margin="0,0,0,15">
-                <StackPanel Margin="10">
-                    <TextBlock Text="Select Print Display Device" Foreground="#e0e0e0" Margin="0,0,0,5"/>
-                    <ComboBox ItemsSource="{Binding DisplayDevices}" 
-                              SelectedItem="{Binding SelectedDisplayDevice}"
-                              Background="#2d2d30" Foreground="White" 
-                              BorderBrush="#3f3f46" Margin="0,0,0,10"/>
+            <!-- Display Configuration Section -->
+            <GroupBox Header="Display Configuration" Style="{StaticResource EnhancedGroupBox}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
                     
-                    <Button Content="Refresh" Command="{Binding RefreshDisplaysCommand}" 
-                            Style="{StaticResource ModernButton}" HorizontalAlignment="Left" 
-                            Padding="10,5" Margin="0,0,0,15"/>
-
-                    <TextBlock Text="Display Resolution (pixels)" FontWeight="Bold" 
-                               Foreground="#00d4ff" Margin="0,0,0,5"/>
-                    <Grid>
+                    <!-- Display Device Selection -->
+                    <Grid Grid.Row="0" Margin="0,0,0,15">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
+                        
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="Width" Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                            <TextBox Text="{Binding DisplayWidth}" Style="{StaticResource ModernTextBox}"/>
+                            <TextBlock Text="PRINT DISPLAY DEVICE" Style="{StaticResource FieldLabel}"/>
+                            <ComboBox ItemsSource="{Binding DisplayDevices}" 
+                                      SelectedItem="{Binding SelectedDisplayDevice}"
+                                      Background="#2d2d30" Foreground="White" 
+                                      BorderBrush="#3f3f46" Height="36" Padding="10,0"/>
                         </StackPanel>
-                        <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                            <TextBlock Text="Height" Foreground="#e0e0e0" Margin="0,0,0,2"/>
-                            <TextBox Text="{Binding DisplayHeight}" Style="{StaticResource ModernTextBox}"/>
-                        </StackPanel>
+                        
+                        <Button Grid.Column="1" Content="↻ Refresh" 
+                                Command="{Binding RefreshDisplaysCommand}" 
+                                Style="{StaticResource ModernButton}" 
+                                VerticalAlignment="Bottom" Margin="15,0,0,0"
+                                Padding="15,8" Height="36"/>
                     </Grid>
-                </StackPanel>
+
+                    <!-- Display Resolution -->
+                    <StackPanel Grid.Row="1" Margin="0,10,0,0">
+                        <TextBlock Text="DISPLAY RESOLUTION" Style="{StaticResource SectionHeader}"/>
+                        <Border Background="#2d2d30" CornerRadius="6" Padding="15" Margin="0,5,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="WIDTH (pixels)" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Text="{Binding DisplayWidth}" 
+                                             Style="{StaticResource ModernTextBox}" Height="36"/>
+                                </StackPanel>
+                                
+                                <TextBlock Grid.Column="1" Text="×" Foreground="#00d4ff" 
+                                           FontSize="20" FontWeight="Bold" 
+                                           VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                           Margin="0,15,0,0"/>
+                                
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="HEIGHT (pixels)" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Text="{Binding DisplayHeight}" 
+                                             Style="{StaticResource ModernTextBox}" Height="36"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Grid>
             </GroupBox>
 
-            <!-- Projector Serial Control -->
-            <GroupBox Header="Projector Serial Control" Foreground="White" BorderBrush="#3f3f46">
-                <StackPanel Margin="10">
-                    <CheckBox Content="Enable" IsChecked="{Binding ProjectorSerialEnabled}" 
-                              Foreground="#e0e0e0" Margin="0,0,0,10"/>
+            <!-- Projector Serial Control Section -->
+            <GroupBox Header="Projector Serial Control" Style="{StaticResource EnhancedGroupBox}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
                     
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Port: Com1" Foreground="#e0e0e0" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <Button Content="Configure" Command="{Binding ConfigureProjectorCommand}" 
-                                Style="{StaticResource ModernButton}" Padding="10,5"/>
+                    <CheckBox Grid.Column="0" Content="Enable Serial Control" 
+                              IsChecked="{Binding ProjectorSerialEnabled}" 
+                              Foreground="White" FontSize="13" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" 
+                                HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="Port:" Foreground="#b0b0b0" Margin="0,0,8,0"/>
+                        <TextBlock Text="Com1" Foreground="#00d4ff" FontWeight="SemiBold"/>
                     </StackPanel>
-                </StackPanel>
+                    
+                    <Button Grid.Column="2" Content="⚙ Configure Port" 
+                            Command="{Binding ConfigureProjectorCommand}" 
+                            Style="{StaticResource ModernButton}" 
+                            Padding="15,8" Height="36"/>
+                </Grid>
             </GroupBox>
 
             <!-- Save Button -->
-            <Button Content="Save Changes" Command="{Binding SaveMachineConfigCommand}" 
-                    Style="{StaticResource PrimaryButton}" Padding="15,8" 
-                    HorizontalAlignment="Right" Margin="0,15,0,0"/>
+            <Border Background="#242424" CornerRadius="8" Padding="20" Margin="0,10,0,20">
+                <Button Content="💾 Save All Changes" 
+                        Command="{Binding SaveMachineConfigCommand}" 
+                        Style="{StaticResource PrimaryButton}" 
+                        Padding="25,12" FontSize="14" FontWeight="SemiBold"
+                        HorizontalAlignment="Right"/>
+            </Border>
 
         </StackPanel>
     </ScrollViewer>

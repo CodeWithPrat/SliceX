@@ -4,139 +4,309 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800"
-             Background="#1e1e1e">
+             d:DesignHeight="600" d:DesignWidth="900"
+             Background="#1a1a1a">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="20">
+    <UserControl.Resources>
+        <!-- Enhanced GroupBox Style -->
+        <Style x:Key="EnhancedGroupBox" TargetType="GroupBox">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#2a2a2a"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GroupBox">
+                        <Grid>
+                            <Border Background="#242424" 
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="8">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="Black" Opacity="0.3" BlurRadius="10" ShadowDepth="2"/>
+                                </Border.Effect>
+                            </Border>
+                            <StackPanel>
+                                <Border Background="#00d4ff" Height="3" CornerRadius="2,2,0,0" 
+                                        HorizontalAlignment="Stretch" Margin="0,0,0,0"/>
+                                <TextBlock Text="{TemplateBinding Header}" 
+                                          FontSize="15" FontWeight="SemiBold"
+                                          Foreground="#00d4ff" 
+                                          Margin="15,12,15,10"/>
+                                <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                            </StackPanel>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-            <!-- Z Axis Control -->
-            <GroupBox Header="Z Axis" Foreground="White" BorderBrush="#3f3f46" Margin="0,0,0,15">
-                <Grid Margin="10">
+        <!-- Control Button Style -->
+        <Style x:Key="ControlButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Padding" Value="15,0"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <!-- Label Style -->
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#b0b0b0"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <!-- Hint Text Style -->
+        <Style x:Key="HintText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#666"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="Margin" Value="0,3,0,0"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="25,20">
+        <StackPanel MaxWidth="1200">
+
+            <!-- Header -->
+            <TextBlock Text="Machine Control" FontSize="24" FontWeight="Bold" 
+                       Foreground="White" Margin="0,0,0,25"/>
+
+            <!-- Quick Actions Panel -->
+            <Border Background="#242424" CornerRadius="8" Padding="20" Margin="0,0,0,20">
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="Z Rate" Foreground="#e0e0e0" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding ZRateFast}" Style="{StaticResource ModernTextBox}" Margin="0,0,0,10"/>
-                        <TextBlock Text="3000 mm/min" Foreground="#888" FontSize="10"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Margin="20,0,0,0">
-                        <TextBlock Text="Z Rate" Foreground="#e0e0e0" Margin="0,0,0,5"/>
-                        <TextBox Text="{Binding ZRateSlow}" Style="{StaticResource ModernTextBox}" Margin="0,0,0,10"/>
-                        <TextBlock Text="100 mm/min" Foreground="#888" FontSize="10"/>
-                    </StackPanel>
-                </Grid>
-            </GroupBox>
-
-            <!-- Motor Control -->
-            <GroupBox Header="Motor Control" Foreground="White" BorderBrush="#3f3f46" Margin="0,0,0,15">
-                <StackPanel Orientation="Horizontal" Margin="10">
-                    <Button Content="Enable Motors" Command="{Binding EnableMotorsCommand}" 
-                            Style="{StaticResource ModernButton}" Margin="0,0,10,0" Padding="15,8"/>
-                    <Button Content="Disable Motors" Command="{Binding DisableMotorsCommand}" 
-                            Style="{StaticResource ModernButton}" Padding="15,8"/>
-                </StackPanel>
-            </GroupBox>
-
-            <!-- GCode Communication -->
-            <GroupBox Header="GCode to send" Foreground="White" BorderBrush="#3f3f46" Margin="0,0,0,15">
-                <StackPanel Margin="10">
-                    <TextBox Text="{Binding GCodeToSend}" Style="{StaticResource ModernTextBox}" 
-                             Height="60" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,0,0,10"/>
-                    <TextBlock Text="Sent:" Foreground="#e0e0e0" Margin="0,0,0,5"/>
-                    <TextBox Text="{Binding SentGCode}" Style="{StaticResource ModernTextBox}" 
-                             Height="40" IsReadOnly="True" Margin="0,0,0,10"/>
-                    <Button Content="Send!" Command="{Binding SendGCodeCommand}" 
-                            Style="{StaticResource PrimaryButton}" Padding="15,8"/>
-                </StackPanel>
-            </GroupBox>
-
-            <!-- Toolhead Controls -->
-            <GroupBox Header="Toolhead 0 (Extruder)" Foreground="White" BorderBrush="#3f3f46" Margin="0,0,0,15">
-                <Grid Margin="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <Button Content="Extrude" Command="{Binding ExtrudeTool0Command}" 
-                                Style="{StaticResource ModernButton}" Margin="0,0,0,5" Padding="10,5"/>
-                        <TextBox Text="{Binding ExtrudeDistance0}" Style="{StaticResource ModernTextBox}" Margin="0,0,0,5"/>
-                        <TextBlock Text="10 mm" Foreground="#888" FontSize="10"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Margin="20,0,0,0">
-                        <Button Content="Reverse" Command="{Binding ReverseTool0Command}" 
-                                Style="{StaticResource ModernButton}" Margin="0,0,0,5" Padding="10,5"/>
-                        <TextBox Text="{Binding ReverseRate0}" Style="{StaticResource ModernTextBox}" Margin="0,0,0,5"/>
-                        <TextBlock Text="100 mm/min" Foreground="#888" FontSize="10"/>
-                    </StackPanel>
-                </Grid>
-            </GroupBox>
-
-            <GroupBox Header="Toolhead 1 (Extruder)" Foreground="White" BorderBrush="#3f3f46" Margin="0,0,0,15">
-                <Grid Margin="10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <Button Content="Extrude" Command="{Binding ExtrudeTool1Command}" 
-                                Style="{StaticResource ModernButton}" Margin="0,0,0,5" Padding="10,5"/>
-                        <TextBox Text="{Binding ExtrudeDistance1}" Style="{StaticResource ModernTextBox}" Margin="0,0,0,5"/>
-                        <TextBlock Text="10 mm" Foreground="#888" FontSize="10"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Margin="20,0,0,0">
-                        <Button Content="Reverse" Command="{Binding ReverseTool1Command}" 
-                                Style="{StaticResource ModernButton}" Margin="0,0,0,5" Padding="10,5"/>
-                        <TextBox Text="{Binding ReverseRate1}" Style="{StaticResource ModernTextBox}" Margin="0,0,0,5"/>
-                        <TextBlock Text="100 mm/min" Foreground="#888" FontSize="10"/>
-                    </StackPanel>
-                </Grid>
-            </GroupBox>
-
-            <!-- Homing -->
-            <GroupBox Header="Homing" Foreground="White" BorderBrush="#3f3f46" Margin="0,0,0,15">
-                <UniformGrid Rows="1" Columns="4" Margin="10">
-                    <Button Content="X" Command="{Binding HomeXCommand}" 
-                            Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
-                    <Button Content="Y" Command="{Binding HomeYCommand}" 
-                            Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
-                    <Button Content="Z" Command="{Binding HomeZCommand}" 
-                            Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
-                    <Button Content="All" Command="{Binding HomeAllCommand}" 
-                            Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
-                </UniformGrid>
-            </GroupBox>
-
-            <!-- Projector Control -->
-            <GroupBox Header="Projector" Foreground="White" BorderBrush="#3f3f46">
-                <StackPanel Margin="10">
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <Button Content="Show" Command="{Binding ShowProjectorCommand}" 
-                                Style="{StaticResource ModernButton}" Margin="0,0,10,0" Padding="10,5"/>
-                        <Button Content="Connect Monitor" Command="{Binding ConnectMonitorCommand}" 
-                                Style="{StaticResource ModernButton}" Margin="0,0,10,0" Padding="10,5"/>
-                        <Button Content="Show Blank" Command="{Binding ShowBlankCommand}" 
-                                Style="{StaticResource ModernButton}" Margin="0,0,10,0" Padding="10,5"/>
-                    </StackPanel>
                     
-                    <TextBox Text="{Binding ProjectorCommands}" Style="{StaticResource ModernTextBox}" 
-                             Height="40" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                    <Button Grid.Column="0" Content="⚡ Enable Motors" 
+                            Command="{Binding EnableMotorsCommand}" 
+                            Style="{StaticResource ControlButton}"
+                            Background="#28a745" Margin="0,0,10,0"/>
+                    <Button Grid.Column="1" Content="⏹ Disable Motors" 
+                            Command="{Binding DisableMotorsCommand}" 
+                            Style="{StaticResource ControlButton}"
+                            Background="#dc3545" Margin="10,0,0,0"/>
+                </Grid>
+            </Border>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left Column -->
+                <StackPanel Grid.Column="0">
                     
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="Edit Commands" Command="{Binding EditCommandsCommand}" 
-                                Style="{StaticResource ModernButton}" Margin="0,0,10,0" Padding="10,5"/>
-                        <Button Content="Hide" Command="{Binding HideProjectorCommand}" 
-                                Style="{StaticResource ModernButton}" Margin="0,0,10,0" Padding="10,5"/>
-                        <Button Content="Send" Command="{Binding SendProjectorCommand}" 
-                                Style="{StaticResource ModernButton}" Margin="0,0,10,0" Padding="10,5"/>
-                        <Button Content="Clear" Command="{Binding ClearProjectorCommand}" 
-                                Style="{StaticResource ModernButton}" Padding="10,5"/>
-                    </StackPanel>
+                    <!-- Z Axis Control -->
+                    <GroupBox Header="Z Axis Control" Style="{StaticResource EnhancedGroupBox}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="15"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Border Grid.Column="0" Background="#2d2d30" CornerRadius="6" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="FAST RATE" Style="{StaticResource FieldLabel}" 
+                                               FontWeight="Bold"/>
+                                    <TextBox Text="{Binding ZRateFast}" 
+                                             Style="{StaticResource ModernTextBox}" 
+                                             Height="36" Margin="0,0,0,5"/>
+                                    <TextBlock Text="Default: 3000 mm/min" Style="{StaticResource HintText}"/>
+                                </StackPanel>
+                            </Border>
+                            
+                            <Border Grid.Column="2" Background="#2d2d30" CornerRadius="6" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="SLOW RATE" Style="{StaticResource FieldLabel}" 
+                                               FontWeight="Bold"/>
+                                    <TextBox Text="{Binding ZRateSlow}" 
+                                             Style="{StaticResource ModernTextBox}" 
+                                             Height="36" Margin="0,0,0,5"/>
+                                    <TextBlock Text="Default: 100 mm/min" Style="{StaticResource HintText}"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </GroupBox>
+
+                    <!-- Homing Controls -->
+                    <GroupBox Header="Homing Controls" Style="{StaticResource EnhancedGroupBox}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Button Grid.Column="0" Content="⌂ X" 
+                                    Command="{Binding HomeXCommand}" 
+                                    Style="{StaticResource ControlButton}" Margin="0,0,5,0"/>
+                            <Button Grid.Column="1" Content="⌂ Y" 
+                                    Command="{Binding HomeYCommand}" 
+                                    Style="{StaticResource ControlButton}" Margin="5,0,5,0"/>
+                            <Button Grid.Column="2" Content="⌂ Z" 
+                                    Command="{Binding HomeZCommand}" 
+                                    Style="{StaticResource ControlButton}" Margin="5,0,5,0"/>
+                            <Button Grid.Column="3" Content="⌂ ALL" 
+                                    Command="{Binding HomeAllCommand}" 
+                                    Style="{StaticResource ControlButton}" 
+                                    Background="#00d4ff" Margin="5,0,0,0"/>
+                        </Grid>
+                    </GroupBox>
+
+                    <!-- Toolhead 0 -->
+                    <GroupBox Header="Toolhead 0 (Extruder)" Style="{StaticResource EnhancedGroupBox}">
+                        <Border Background="#2d2d30" CornerRadius="6" Padding="15">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="15"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0">
+                                    <Button Content="▲ Extrude" Command="{Binding ExtrudeTool0Command}" 
+                                            Style="{StaticResource ControlButton}" 
+                                            Background="#28a745" Margin="0,0,0,10"/>
+                                    <TextBlock Text="DISTANCE (mm)" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Text="{Binding ExtrudeDistance0}" 
+                                             Style="{StaticResource ModernTextBox}" 
+                                             Height="36" Margin="0,0,0,5"/>
+                                    <TextBlock Text="Default: 10 mm" Style="{StaticResource HintText}"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="2">
+                                    <Button Content="▼ Reverse" Command="{Binding ReverseTool0Command}" 
+                                            Style="{StaticResource ControlButton}" 
+                                            Background="#dc3545" Margin="0,0,0,10"/>
+                                    <TextBlock Text="RATE (mm/min)" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Text="{Binding ReverseRate0}" 
+                                             Style="{StaticResource ModernTextBox}" 
+                                             Height="36" Margin="0,0,0,5"/>
+                                    <TextBlock Text="Default: 100 mm/min" Style="{StaticResource HintText}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </GroupBox>
+
+                    <!-- Toolhead 1 -->
+                    <GroupBox Header="Toolhead 1 (Extruder)" Style="{StaticResource EnhancedGroupBox}">
+                        <Border Background="#2d2d30" CornerRadius="6" Padding="15">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="15"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0">
+                                    <Button Content="▲ Extrude" Command="{Binding ExtrudeTool1Command}" 
+                                            Style="{StaticResource ControlButton}" 
+                                            Background="#28a745" Margin="0,0,0,10"/>
+                                    <TextBlock Text="DISTANCE (mm)" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Text="{Binding ExtrudeDistance1}" 
+                                             Style="{StaticResource ModernTextBox}" 
+                                             Height="36" Margin="0,0,0,5"/>
+                                    <TextBlock Text="Default: 10 mm" Style="{StaticResource HintText}"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="2">
+                                    <Button Content="▼ Reverse" Command="{Binding ReverseTool1Command}" 
+                                            Style="{StaticResource ControlButton}" 
+                                            Background="#dc3545" Margin="0,0,0,10"/>
+                                    <TextBlock Text="RATE (mm/min)" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Text="{Binding ReverseRate1}" 
+                                             Style="{StaticResource ModernTextBox}" 
+                                             Height="36" Margin="0,0,0,5"/>
+                                    <TextBlock Text="Default: 100 mm/min" Style="{StaticResource HintText}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </GroupBox>
+
                 </StackPanel>
-            </GroupBox>
+
+                <!-- Right Column -->
+                <StackPanel Grid.Column="2">
+                    
+                    <!-- GCode Communication -->
+                    <GroupBox Header="GCode Communication" Style="{StaticResource EnhancedGroupBox}">
+                        <StackPanel>
+                            <TextBlock Text="COMMAND TO SEND" Style="{StaticResource FieldLabel}" 
+                                       FontWeight="Bold"/>
+                            <TextBox Text="{Binding GCodeToSend}" 
+                                     Style="{StaticResource ModernTextBox}" 
+                                     Height="80" TextWrapping="Wrap" AcceptsReturn="True" 
+                                     VerticalScrollBarVisibility="Auto"
+                                     FontFamily="Consolas" Margin="0,0,0,15"/>
+                            
+                            <TextBlock Text="SENT COMMAND" Style="{StaticResource FieldLabel}" 
+                                       FontWeight="Bold"/>
+                            <Border Background="#2d2d30" BorderBrush="#3f3f46" BorderThickness="1" 
+                                    CornerRadius="4" Padding="8" Margin="0,0,0,15">
+                                <TextBlock Text="{Binding SentGCode}" Foreground="#00d4ff" 
+                                           FontFamily="Consolas" TextWrapping="Wrap"/>
+                            </Border>
+                            
+                            <Button Content="▶ Send Command" Command="{Binding SendGCodeCommand}" 
+                                    Style="{StaticResource PrimaryButton}" 
+                                    Height="44" FontSize="13" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- Projector Control -->
+                    <GroupBox Header="Projector Control" Style="{StaticResource EnhancedGroupBox}">
+                        <StackPanel>
+                            <!-- Primary Controls -->
+                            <UniformGrid Rows="2" Columns="2" Margin="0,0,0,15">
+                                <Button Content="👁 Show" Command="{Binding ShowProjectorCommand}" 
+                                        Style="{StaticResource ControlButton}" 
+                                        Background="#28a745" Margin="0,0,5,5"/>
+                                <Button Content="⚫ Hide" Command="{Binding HideProjectorCommand}" 
+                                        Style="{StaticResource ControlButton}" 
+                                        Background="#6c757d" Margin="5,0,0,5"/>
+                                <Button Content="🖥 Connect" Command="{Binding ConnectMonitorCommand}" 
+                                        Style="{StaticResource ControlButton}" 
+                                        Margin="0,5,5,0"/>
+                                <Button Content="⬜ Blank" Command="{Binding ShowBlankCommand}" 
+                                        Style="{StaticResource ControlButton}" 
+                                        Margin="5,5,0,0"/>
+                            </UniformGrid>
+                            
+                            <Separator Background="#3f3f46" Margin="0,5,0,15"/>
+                            
+                            <!-- Command Input -->
+                            <TextBlock Text="CUSTOM COMMANDS" Style="{StaticResource FieldLabel}" 
+                                       FontWeight="Bold"/>
+                            <TextBox Text="{Binding ProjectorCommands}" 
+                                     Style="{StaticResource ModernTextBox}" 
+                                     Height="60" TextWrapping="Wrap"
+                                     FontFamily="Consolas" Margin="0,0,0,15"/>
+                            
+                            <!-- Command Actions -->
+                            <UniformGrid Rows="1" Columns="3">
+                                <Button Content="✏ Edit" Command="{Binding EditCommandsCommand}" 
+                                        Style="{StaticResource ModernButton}" 
+                                        Height="36" Margin="0,0,5,0"/>
+                                <Button Content="▶ Send" Command="{Binding SendProjectorCommand}" 
+                                        Style="{StaticResource ModernButton}" 
+                                        Height="36" Margin="5,0,5,0" Background="#007bff"/>
+                                <Button Content="✕ Clear" Command="{Binding ClearProjectorCommand}" 
+                                        Style="{StaticResource ModernButton}" 
+                                        Height="36" Margin="5,0,0,0" Background="#dc3545"/>
+                            </UniformGrid>
+                        </StackPanel>
+                    </GroupBox>
+
+                </StackPanel>
+            </Grid>
 
         </StackPanel>
     </ScrollViewer>
