@@ -706,7 +706,7 @@ namespace SliceX.ViewModels
 
                     if (CurrentModel == null)
                     {
-                        StatusMessage = "Failed to load model";
+                        StatusMessage = "Failed to load model"; 
                         return;
                     }
 
