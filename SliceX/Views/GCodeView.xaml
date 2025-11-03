@@ -11,28 +11,49 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#252526" Padding="10">
-            <TextBlock Text="Generated G-Code" Foreground="White" FontSize="16" FontWeight="Bold"/>
+        <Border Grid.Row="0" Background="#252526" Padding="15">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="📄 Generated G-Code" Foreground="White" FontSize="16" FontWeight="Bold"/>
+                <TextBlock Text="{Binding TotalLayers, StringFormat=' - {0} layers'}" 
+                           Foreground="#00d4ff" FontSize="14" FontWeight="Bold" Margin="10,0,0,0"/>
+            </StackPanel>
         </Border>
 
         <!-- G-Code Content -->
-        <TextBox Grid.Row="1" x:Name="GCodeTextBox" 
-                 Text="{Binding GeneratedGCode, Mode=OneWay}"
-                 Background="#252526" Foreground="White" 
-                 BorderThickness="0" Padding="10"
-                 FontFamily="Consolas" FontSize="12"
-                 VerticalScrollBarVisibility="Auto" 
-                 HorizontalScrollBarVisibility="Auto"
-                 IsReadOnly="True" TextWrapping="NoWrap"/>
+        <Border Grid.Row="1" Background="#252526" Margin="10" CornerRadius="5">
+            <TextBox x:Name="GCodeTextBox" 
+                     Text="{Binding GeneratedGCode, Mode=OneWay}"
+                     Background="Transparent" 
+                     Foreground="White" 
+                     BorderThickness="0" 
+                     Padding="15"
+                     FontFamily="Consolas" 
+                     FontSize="11"
+                     VerticalScrollBarVisibility="Auto" 
+                     HorizontalScrollBarVisibility="Auto"
+                     IsReadOnly="True" 
+                     TextWrapping="NoWrap"
+                     Cursor="Arrow"/>
+        </Border>
 
-        <!-- Copy Button -->
-        <Button Content="📋 Copy G-Code" 
-                Command="{Binding CopyGCodeCommand}"
-                Style="{StaticResource ModernButton}"
-                HorizontalAlignment="Right" VerticalAlignment="Top"
-                Margin="10" Padding="10,5"/>
+        <!-- Action Buttons -->
+        <Border Grid.Row="2" Background="#252526" Padding="10">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="📋 Copy G-Code" 
+                        Command="{Binding CopyGCodeCommand}"
+                        Style="{StaticResource ModernButton}"
+                        Margin="5" 
+                        Padding="15,8"/>
+                <Button Content="💾 Save to File" 
+                        Command="{Binding SaveGCodeCommand}"
+                        Style="{StaticResource ModernButton}"
+                        Margin="5" 
+                        Padding="15,8"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl>

@@ -293,7 +293,14 @@ namespace SliceX.ViewModels
         }
 
         [RelayCommand]
-        private void NavigateToGCode() => CurrentView = _gCodeView;
+private void NavigateToGCode() 
+{
+    CurrentView = _gCodeView;
+    if (_gCodeView is GCodeView gCodeView)
+    {
+        gCodeView.OnActivated();
+    }
+}
 
         [RelayCommand]
         private void NavigateToSliceViewer() => CurrentView = _sliceViewerView;
@@ -1052,21 +1059,30 @@ namespace SliceX.ViewModels
                 }
 
                 // Perform slicing
-                var sliceResult = slicingEngine.SliceModel(CurrentModel, PrinterSettings);
+                currentSliceResult = slicingEngine.SliceModel(CurrentModel, PrinterSettings);
 
-                StatusMessage = $"Slicing complete: {sliceResult.Layers.Count} layers generated";
+                // Generate GCode using the GCodeGenerator
+                var gcodeGenerator = new GCodeGenerator();
+                GeneratedGCode = gcodeGenerator.GenerateGCode(currentSliceResult, PrinterSettings);
+
+                // Update slice viewer properties
+                TotalLayers = currentSliceResult.Layers.Count;
+                CurrentLayerNumber = 1;
+                UpdateLayerImage();
+
+                StatusMessage = $"Slicing complete: {currentSliceResult.Layers.Count} layers generated";
 
                 // Ask user if they want to export
                 var result = MessageBox.Show(
                     $"Slicing completed successfully!\n\n" +
-                    $"Layers: {sliceResult.Layers.Count}\n" +
-                    $"Print Time: {sliceResult.PrintTime:F1} minutes\n" +
-                    $"Exposure Time: {sliceResult.TotalExposureTime:F0}s\n" +
-                    $"Lift Time: {sliceResult.TotalLiftTime:F0}s\n" +
+                    $"Layers: {currentSliceResult.Layers.Count}\n" +
+                    $"Print Time: {currentSliceResult.PrintTime:F1} minutes\n" +
+                    $"Exposure Time: {currentSliceResult.TotalExposureTime:F0}s\n" +
+                    $"Lift Time: {currentSliceResult.TotalLiftTime:F0}s\n" +
                     $"Model Height: {CurrentModel.Size.Z:F2} mm\n" +
                     $"Layer Thickness: {PrinterSettings.LayerThickness:F3} mm\n" +
-                    $"Estimated Resin: {sliceResult.EstimatedResinVolume:F1} ml\n" +
-                    $"Estimated Cost: ${sliceResult.EstimatedCost:F2}\n\n" +
+                    $"Estimated Resin: {currentSliceResult.EstimatedResinVolume:F1} ml\n" +
+                    $"Estimated Cost: ${currentSliceResult.EstimatedCost:F2}\n\n" +
                     $"Do you want to export G-code and layer images to a ZIP file?",
                     "Slicing Complete",
                     MessageBoxButton.YesNo,
@@ -1149,7 +1165,7 @@ namespace SliceX.ViewModels
 
                             await Task.Run(() =>
                             {
-                                exporter.ExportToZip(CurrentModel, sliceResult, PrinterSettings,
+                                exporter.ExportToZip(CurrentModel, currentSliceResult, PrinterSettings,
                                                     saveDialog.FileName, progress);
                             });
 
@@ -1161,7 +1177,7 @@ namespace SliceX.ViewModels
                                 $"Output saved to:\n{saveDialog.FileName}\n\n" +
                                 $"The ZIP contains:\n" +
                                 $"• output.gcode - G-code file\n" +
-                                $"• layers/ - {sliceResult.TotalLayers} layer images\n" +
+                                $"• layers/ - {currentSliceResult.TotalLayers} layer images\n" +
                                 $"• metadata.txt - Print information",
                                 "Export Complete",
                                 MessageBoxButton.OK,
@@ -1198,6 +1214,42 @@ namespace SliceX.ViewModels
                 StatusMessage = "Slicing failed";
             }
         }
+
+
+[RelayCommand]
+private void SaveGCode()
+{
+    if (string.IsNullOrEmpty(GeneratedGCode))
+    {
+        MessageBox.Show("No G-Code to save. Please slice a model first.", "No G-Code",
+            MessageBoxButton.OK, MessageBoxImage.Warning);
+        return;
+    }
+
+    var saveDialog = new SaveFileDialog
+    {
+        Filter = "G-Code Files (*.gcode)|*.gcode|Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
+        FileName = $"{Path.GetFileNameWithoutExtension(CurrentModel?.FileName ?? "model")}.gcode",
+        Title = "Save G-Code File"
+    };
+
+    if (saveDialog.ShowDialog() == true)
+    {
+        try
+        {
+            File.WriteAllText(saveDialog.FileName, GeneratedGCode);
+            StatusMessage = $"G-Code saved to: {Path.GetFileName(saveDialog.FileName)}";
+            MessageBox.Show("G-Code saved successfully!", "Save Complete",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error saving G-Code: {ex.Message}", "Save Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+            StatusMessage = "Failed to save G-Code";
+        }
+    }
+}
 
 
         [RelayCommand]
