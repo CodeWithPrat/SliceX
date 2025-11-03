@@ -293,14 +293,14 @@ namespace SliceX.ViewModels
         }
 
         [RelayCommand]
-private void NavigateToGCode() 
-{
-    CurrentView = _gCodeView;
-    if (_gCodeView is GCodeView gCodeView)
-    {
-        gCodeView.OnActivated();
-    }
-}
+        private void NavigateToGCode()
+        {
+            CurrentView = _gCodeView;
+            if (_gCodeView is GCodeView gCodeView)
+            {
+                gCodeView.OnActivated();
+            }
+        }
 
         [RelayCommand]
         private void NavigateToSliceViewer() => CurrentView = _sliceViewerView;
@@ -713,7 +713,7 @@ private void NavigateToGCode()
 
                     if (CurrentModel == null)
                     {
-                        StatusMessage = "Failed to load model"; 
+                        StatusMessage = "Failed to load model";
                         return;
                     }
 
@@ -1216,40 +1216,40 @@ private void NavigateToGCode()
         }
 
 
-[RelayCommand]
-private void SaveGCode()
-{
-    if (string.IsNullOrEmpty(GeneratedGCode))
-    {
-        MessageBox.Show("No G-Code to save. Please slice a model first.", "No G-Code",
-            MessageBoxButton.OK, MessageBoxImage.Warning);
-        return;
-    }
-
-    var saveDialog = new SaveFileDialog
-    {
-        Filter = "G-Code Files (*.gcode)|*.gcode|Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
-        FileName = $"{Path.GetFileNameWithoutExtension(CurrentModel?.FileName ?? "model")}.gcode",
-        Title = "Save G-Code File"
-    };
-
-    if (saveDialog.ShowDialog() == true)
-    {
-        try
+        [RelayCommand]
+        private void SaveGCode()
         {
-            File.WriteAllText(saveDialog.FileName, GeneratedGCode);
-            StatusMessage = $"G-Code saved to: {Path.GetFileName(saveDialog.FileName)}";
-            MessageBox.Show("G-Code saved successfully!", "Save Complete",
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            if (string.IsNullOrEmpty(GeneratedGCode))
+            {
+                MessageBox.Show("No G-Code to save. Please slice a model first.", "No G-Code",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var saveDialog = new SaveFileDialog
+            {
+                Filter = "G-Code Files (*.gcode)|*.gcode|Text Files (*.txt)|*.txt|All Files (*.*)|*.*",
+                FileName = $"{Path.GetFileNameWithoutExtension(CurrentModel?.FileName ?? "model")}.gcode",
+                Title = "Save G-Code File"
+            };
+
+            if (saveDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    File.WriteAllText(saveDialog.FileName, GeneratedGCode);
+                    StatusMessage = $"G-Code saved to: {Path.GetFileName(saveDialog.FileName)}";
+                    MessageBox.Show("G-Code saved successfully!", "Save Complete",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error saving G-Code: {ex.Message}", "Save Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    StatusMessage = "Failed to save G-Code";
+                }
+            }
         }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Error saving G-Code: {ex.Message}", "Save Error",
-                MessageBoxButton.OK, MessageBoxImage.Error);
-            StatusMessage = "Failed to save G-Code";
-        }
-    }
-}
 
 
         [RelayCommand]
@@ -1426,5 +1426,181 @@ private void SaveGCode()
                 PrinterSettings.ProfileName = value;
             }
         }
+
+        // Add these properties to MainViewModel
+        [ObservableProperty]
+        private bool isDragOver;
+
+        [ObservableProperty]
+        private string dragDropMessage = "Drop 3D model file here";
+
+        // Add these commands to MainViewModel
+        [RelayCommand]
+        private void UnloadModel()
+        {
+            if (Viewport3D == null) return;
+
+            try
+            {
+                // Clear the model from viewport
+                Viewport3D.Children.Clear();
+
+                // Reset model-related properties
+                CurrentModel = null;
+                IsModelLoaded = false;
+                currentModelVisual = null;
+
+                // Clear slice results
+                currentSliceResult = null;
+                GeneratedGCode = "";
+                TotalLayers = 0;
+                CurrentLayerNumber = 0;
+                CurrentLayerImage = null;
+
+                // Reinitialize viewport with default elements
+                InitializeViewport();
+
+                StatusMessage = "Model unloaded";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error unloading model: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                StatusMessage = "Error unloading model";
+            }
+        }
+
+        [RelayCommand]
+        private void HandleDragEnter(DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files != null && files.Length > 0)
+                {
+                    string extension = Path.GetExtension(files[0]).ToLower();
+                    if (extension == ".stl" || extension == ".obj")
+                    {
+                        IsDragOver = true;
+                        DragDropMessage = $"Load {Path.GetFileName(files[0])}";
+                        e.Effects = DragDropEffects.Copy;
+                        e.Handled = true;
+                        return;
+                    }
+                }
+            }
+            IsDragOver = false;
+            DragDropMessage = "Drop 3D model file here";
+            e.Effects = DragDropEffects.None;
+            e.Handled = true;
+        }
+
+        [RelayCommand]
+        private void HandleDragLeave()
+        {
+            IsDragOver = false;
+            DragDropMessage = "Drop 3D model file here";
+        }
+
+        [RelayCommand]
+        private void HandleDrop(DragEventArgs e)
+        {
+            IsDragOver = false;
+            DragDropMessage = "Drop 3D model file here";
+
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files != null && files.Length > 0)
+                {
+                    string filePath = files[0];
+                    string extension = Path.GetExtension(filePath).ToLower();
+
+                    if (extension == ".stl" || extension == ".obj")
+                    {
+                        // Use existing LoadModel logic but with the dropped file
+                        LoadModelFromFile(filePath);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Please drop a valid 3D model file (.stl or .obj)", "Invalid File",
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                }
+            }
+            e.Handled = true;
+        }
+
+        private void LoadModelFromFile(string filePath)
+        {
+            if (Viewport3D == null) return;
+
+            try
+            {
+                StatusMessage = "Loading model...";
+                CurrentModel = modelImporter.ImportModel(filePath);
+
+                if (CurrentModel == null)
+                {
+                    StatusMessage = "Failed to load model";
+                    return;
+                }
+
+                // Clear previous model and reinitialize viewport
+                Viewport3D.Children.Clear();
+                InitializeViewport(); // This will add lights, grid, etc.
+
+                // Create material for the model (same as in LoadModel)
+                var modelMaterial = new MaterialGroup();
+                var diffuse = new DiffuseMaterial(new SolidColorBrush(Color.FromRgb(0, 80, 0)));
+                var specular = new SpecularMaterial(new SolidColorBrush(Color.FromRgb(50, 200, 50)), 20);
+                var emissive = new EmissiveMaterial(new SolidColorBrush(Color.FromRgb(0, 40, 0)));
+                modelMaterial.Children.Add(diffuse);
+                modelMaterial.Children.Add(specular);
+                modelMaterial.Children.Add(emissive);
+
+                var backMaterial = new DiffuseMaterial(new SolidColorBrush(Color.FromRgb(0, 100, 0)));
+
+                // Add new model to viewport
+                currentModelVisual = new ModelVisual3D
+                {
+                    Content = new GeometryModel3D
+                    {
+                        Geometry = CurrentModel.Geometry,
+                        Material = modelMaterial,
+                        BackMaterial = backMaterial
+                    },
+                    Transform = CurrentModel.Transform
+                };
+
+                Viewport3D.Children.Add(currentModelVisual);
+
+                // Center the model on build plate
+                CenterModel();
+                Viewport3D.ZoomExtents(500);
+
+                IsModelLoaded = true;
+                StatusMessage = $"Model loaded: {Path.GetFileName(filePath)} ({CurrentModel.Triangles.Count} triangles)";
+
+                // Add to recent files
+                if (!RecentFiles.Contains(filePath))
+                {
+                    RecentFiles.Insert(0, filePath);
+                    if (RecentFiles.Count > 10)
+                    {
+                        RecentFiles.RemoveAt(RecentFiles.Count - 1);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading model: {ex.Message}", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                StatusMessage = "Error loading model";
+                IsModelLoaded = false;
+            }
+        }
+
+        
     }
 }

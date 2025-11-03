@@ -4,26 +4,85 @@ using HelixToolkit.Wpf;
 using System.Windows;
 using System.Windows.Media.Media3D;
 using System.Windows.Media;
+using System.Windows.Input;
 
 namespace SliceX.Views
 {
     public partial class ThreeDView : UserControl
     {
-        public HelixViewport3D Viewport3D => this.Viewport3DControl;
+        public HelixViewport3D Viewport3D => this.viewport;
         
-        // Properties to preserve viewport state
         private Point3D _cameraPosition;
         private Vector3D _cameraLookDirection;
         private Vector3D _cameraUpDirection;
         private double _cameraFieldOfView;
         private bool _isViewportInitialized = false;
-        private ModelVisual3D _cachedModelVisual;
 
         public ThreeDView()
         {
             InitializeComponent();
             this.Loaded += ThreeDView_Loaded;
             this.Unloaded += ThreeDView_Unloaded;
+            
+            // Enable drag-drop on the entire user control
+            this.AllowDrop = true;
+            
+            // Hook up drag-drop events
+            this.DragEnter += OnDragEnter;
+            this.DragOver += OnDragOver;
+            this.DragLeave += OnDragLeave;
+            this.Drop += OnDrop;
+            
+            // Also enable drag-drop on the viewport
+            if (viewport != null)
+            {
+                viewport.AllowDrop = true;
+                viewport.DragEnter += OnDragEnter;
+                viewport.DragOver += OnDragOver;
+                viewport.DragLeave += OnDragLeave;
+                viewport.Drop += OnDrop;
+            }
+        }
+
+        private void OnDragEnter(object sender, DragEventArgs e)
+        {
+            if (DataContext is MainViewModel viewModel)
+            {
+                viewModel.HandleDragEnterCommand.Execute(e);
+            }
+        }
+
+        private void OnDragOver(object sender, DragEventArgs e)
+        {
+            // This is crucial for drag-drop to work
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effects = DragDropEffects.None;
+            }
+            e.Handled = true;
+        }
+
+        private void OnDragLeave(object sender, DragEventArgs e)
+        {
+            if (DataContext is MainViewModel viewModel)
+            {
+                viewModel.HandleDragLeaveCommand.Execute(null);
+            }
+        }
+
+        private void OnDrop(object sender, DragEventArgs e)
+        {
+            if (DataContext is MainViewModel viewModel)
+            {
+                viewModel.HandleDropCommand.Execute(e);
+            e.Handled = true;
+            // Reset drag state
+                viewModel.HandleDragLeaveCommand.Execute(null);
+            }
         }
 
         private void ThreeDView_Loaded(object sender, RoutedEventArgs e)
@@ -34,12 +93,6 @@ namespace SliceX.Views
                 {
                     // Always ensure the viewport is connected to ViewModel
                     viewModel.Viewport3D = this.Viewport3D;
-                    
-                    // If we have a cached model, restore it
-                    if (_cachedModelVisual != null && !Viewport3D.Children.Contains(_cachedModelVisual))
-                    {
-                        Viewport3D.Children.Add(_cachedModelVisual);
-                    }
                     
                     // Restore camera state if we have saved values
                     if (_isViewportInitialized && Viewport3D.Camera != null)
@@ -71,20 +124,6 @@ namespace SliceX.Views
                     _cameraLookDirection = camera.LookDirection;
                     _cameraUpDirection = camera.UpDirection;
                     _cameraFieldOfView = camera.FieldOfView;
-                }
-                
-                // Cache the current model visual if it exists
-                if (DataContext is MainViewModel viewModel && viewModel.CurrentModel != null)
-                {
-                    // Find the model visual in the viewport
-                    foreach (var child in Viewport3D.Children)
-                    {
-                        if (child is ModelVisual3D modelVisual && modelVisual.Content is GeometryModel3D)
-                        {
-                            _cachedModelVisual = modelVisual;
-                            break;
-                        }
-                    }
                 }
             }
             catch (System.Exception ex)
@@ -149,12 +188,6 @@ namespace SliceX.Views
                     viewModel.Viewport3D = this.Viewport3D;
                 }
             }
-        }
-
-        // Method to clear cached model (when loading a new model)
-        public void ClearCachedModel()
-        {
-            _cachedModelVisual = null;
         }
     }
 }

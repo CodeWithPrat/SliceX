@@ -12,8 +12,8 @@ TRACE;DEBUG;NET;NET9_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR
 C:\Users\SMDDC-02\Documents\GitHub\SliceX\SliceX\App.xaml
 8145544072
 
-202079366197
-2041992380011
+211894217680
+205769063876
 Views\GCodeView.xaml;Views\MachineConfigView.xaml;Views\MachineControlView.xaml;Views\MainWindow.xaml;Views\SidebarView.xaml;Views\SliceProfileView.xaml;Views\SliceViewerView.xaml;Views\ThreeDView.xaml;
 
 False
