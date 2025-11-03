@@ -5,284 +5,816 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vm="clr-namespace:SliceX.ViewModels"
              mc:Ignorable="d" 
-             d:DesignHeight="800" d:DesignWidth="400"
-             Background="#252526">
+             d:DesignHeight="800" d:DesignWidth="400">
 
     <UserControl.Resources>
-        <!-- Modern Button Style -->
-        <Style x:Key="ModernButton" TargetType="Button">
-            <Setter Property="Background" Value="#2d2d30"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="12,6"/>
+        <!-- Luxury Metallic Silver Gradient -->
+        <LinearGradientBrush x:Key="MetallicSilver" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#E8E8E8" Offset="0"/>
+            <GradientStop Color="#C0C0C0" Offset="0.5"/>
+            <GradientStop Color="#A8A8A8" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Dark Metallic Gradient -->
+        <LinearGradientBrush x:Key="DarkMetallic" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#1a1a1a" Offset="0"/>
+            <GradientStop Color="#0d0d0d" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Silver Shine Effect -->
+        <LinearGradientBrush x:Key="SilverShine" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#40FFFFFF" Offset="0"/>
+            <GradientStop Color="#80FFFFFF" Offset="0.5"/>
+            <GradientStop Color="#40FFFFFF" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- Luxury Button Base Style -->
+        <Style x:Key="LuxuryButtonBase" TargetType="Button">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Foreground" Value="#E8E8E8"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="3" 
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Grid>
+                            <!-- Main Button Border -->
+                            <Border x:Name="BorderOuter" 
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="#404040"
+                                    BorderThickness="1"
+                                    CornerRadius="6"
+                                    Padding="{TemplateBinding Padding}">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="Black" 
+                                                      BlurRadius="8" 
+                                                      ShadowDepth="2" 
+                                                      Opacity="0.6"/>
+                                </Border.Effect>
+                                
+                                <!-- Inner Glow Border -->
+                                <Border x:Name="BorderInner"
+                                        BorderBrush="#30FFFFFF"
+                                        BorderThickness="1"
+                                        CornerRadius="5"
+                                        Opacity="0.3">
+                                    
+                                    <!-- Content with Shine Overlay -->
+                                    <Grid>
+                                        <ContentPresenter HorizontalAlignment="Center" 
+                                                          VerticalAlignment="Center"
+                                                          TextBlock.FontWeight="{TemplateBinding FontWeight}"/>
+                                        
+                                        <!-- Shine Effect Overlay -->
+                                        <Border x:Name="ShineOverlay"
+                                                Background="{StaticResource SilverShine}"
+                                                CornerRadius="5"
+                                                Opacity="0"
+                                                IsHitTestVisible="False"/>
+                                    </Grid>
+                                </Border>
+                            </Border>
+                        </Grid>
+                        
+                        <ControlTemplate.Triggers>
+                            <!-- Hover Effect -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ShineOverlay"
+                                                             Storyboard.TargetProperty="Opacity"
+                                                             To="0.15" Duration="0:0:0.2"/>
+                                            <ColorAnimation Storyboard.TargetName="BorderOuter"
+                                                            Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                            To="#606060" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ShineOverlay"
+                                                             Storyboard.TargetProperty="Opacity"
+                                                             To="0" Duration="0:0:0.2"/>
+                                            <ColorAnimation Storyboard.TargetName="BorderOuter"
+                                                            Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                            To="#404040" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            
+                            <!-- Pressed Effect -->
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="BorderOuter" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect Color="Black" BlurRadius="4" ShadowDepth="1" Opacity="0.8"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            
+                            <!-- Disabled State -->
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Standard Luxury Button -->
+        <Style x:Key="LuxuryButton" TargetType="Button" BasedOn="{StaticResource LuxuryButtonBase}">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#2a2a2a" Offset="0"/>
+                        <GradientStop Color="#1a1a1a" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Primary Silver Button -->
+        <Style x:Key="PrimarySilverButton" TargetType="Button" BasedOn="{StaticResource LuxuryButtonBase}">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#505050" Offset="0"/>
+                        <GradientStop Color="#383838" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Danger Luxury Button -->
+        <Style x:Key="DangerLuxuryButton" TargetType="Button" BasedOn="{StaticResource LuxuryButtonBase}">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#8B0000" Offset="0"/>
+                        <GradientStop Color="#5a0000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Foreground" Value="#FFD0D0"/>
+        </Style>
+
+        <!-- Luxury TextBox -->
+        <Style x:Key="LuxuryTextBox" TargetType="TextBox">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#E8E8E8"/>
+            <Setter Property="CaretBrush" Value="#C0C0C0"/>
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="#0d0d0d"
+                                BorderBrush="#404040"
+                                BorderThickness="1"
+                                CornerRadius="4">
+                            <Border.Effect>
+                                <DropShadowEffect Color="Black" BlurRadius="6" ShadowDepth="2" Opacity="0.4" Direction="270"/>
+                            </Border.Effect>
+                            <Border BorderBrush="#202020"
+                                    BorderThickness="1"
+                                    CornerRadius="3">
+                                <ScrollViewer x:Name="PART_ContentHost" 
+                                              Margin="{TemplateBinding Padding}"
+                                              VerticalAlignment="Center"/>
+                            </Border>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#3e3e42"/>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#007ACC"/>
-                </Trigger>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Opacity" Value="0.5"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
 
-        <!-- Primary Button Style -->
-        <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
-            <Setter Property="Background" Value="#007ACC"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#005a9e"/>
-                </Trigger>
-            </Style.Triggers>
+        <!-- Luxury Slider -->
+        <Style x:Key="LuxurySlider" TargetType="Slider">
+            <Setter Property="Foreground" Value="{StaticResource MetallicSilver}"/>
+            <Setter Property="Background" Value="#1a1a1a"/>
+            <Setter Property="BorderBrush" Value="#404040"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto" MinHeight="{TemplateBinding MinHeight}"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <!-- Track -->
+                            <Border x:Name="TrackBackground" 
+                                    Grid.Row="1"
+                                    Height="6" 
+                                    Background="#0d0d0d"
+                                    BorderBrush="#404040"
+                                    BorderThickness="1"
+                                    CornerRadius="3"
+                                    Margin="5,0">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="Black" BlurRadius="4" ShadowDepth="1" Opacity="0.5" Direction="270"/>
+                                </Border.Effect>
+                                
+                                <!-- Progress Fill -->
+                                <Border x:Name="PART_SelectionRange"
+                                        Background="{StaticResource MetallicSilver}"
+                                        CornerRadius="3"
+                                        HorizontalAlignment="Left"/>
+                            </Border>
+                            
+                            <!-- Thumb -->
+                            <Track x:Name="PART_Track" Grid.Row="1">
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate>
+                                                <Grid>
+                                                    <Ellipse Width="18" Height="18"
+                                                             Fill="{StaticResource MetallicSilver}"
+                                                             Stroke="#606060"
+                                                             StrokeThickness="2">
+                                                        <Ellipse.Effect>
+                                                            <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="2" Opacity="0.6"/>
+                                                        </Ellipse.Effect>
+                                                    </Ellipse>
+                                                    <Ellipse Width="8" Height="8"
+                                                             Fill="#FFFFFF"
+                                                             Opacity="0.6"/>
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
-        <!-- Danger Button Style -->
-        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
-            <Setter Property="Background" Value="#DC3545"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#C82333"/>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#BD2130"/>
-                </Trigger>
-            </Style.Triggers>
+        <!-- Luxury TabItem -->
+        <Style x:Key="LuxuryTabItem" TargetType="TabItem">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Foreground" Value="#A0A0A0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Grid x:Name="TabGrid">
+                            <Border x:Name="TabBorder"
+                                    Background="#1a1a1a"
+                                    BorderBrush="#303030"
+                                    BorderThickness="1,1,1,0"
+                                    CornerRadius="6,6,0,0"
+                                    Padding="14,8"
+                                    Margin="2,0,2,0">
+                                <ContentPresenter ContentSource="Header"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
+                        
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="TabBorder" Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#3a3a3a" Offset="0"/>
+                                            <GradientStop Color="#2a2a2a" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="TabBorder" Property="BorderBrush" Value="#606060"/>
+                                <Setter Property="Foreground" Value="#E8E8E8"/>
+                                <Setter TargetName="TabBorder" Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect Color="#80FFFFFF" BlurRadius="8" ShadowDepth="0" Opacity="0.3"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabBorder" Property="Background" Value="#252525"/>
+                                <Setter Property="Foreground" Value="#C0C0C0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
-        <!-- Modern TextBox Style -->
-        <Style x:Key="ModernTextBox" TargetType="TextBox">
-            <Setter Property="Background" Value="#2d2d30"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#3f3f46"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,4"/>
-            <Setter Property="CaretBrush" Value="White"/>
-        </Style>
-
-        <!-- Modern TabItem Style -->
-        <Style x:Key="ModernTabItem" TargetType="TabItem">
-            <Setter Property="Background" Value="#2d2d30"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#3f3f46"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#007ACC"/>
-                    <Setter Property="Foreground" Value="White"/>
-                </Trigger>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#3e3e42"/>
-                </Trigger>
-            </Style.Triggers>
+        <!-- Luxury GroupBox -->
+        <Style x:Key="LuxuryGroupBox" TargetType="GroupBox">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#C0C0C0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GroupBox">
+                        <Grid>
+                            <Border Background="#0d0d0d"
+                                    BorderBrush="#404040"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="12">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="3" Opacity="0.5"/>
+                                </Border.Effect>
+                                
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    
+                                    <!-- Header with Silver Accent -->
+                                    <Border Grid.Row="0" 
+                                            Background="#1a1a1a"
+                                            BorderBrush="{StaticResource MetallicSilver}"
+                                            BorderThickness="0,0,0,1"
+                                            Padding="8,6"
+                                            Margin="0,0,0,10"
+                                            CornerRadius="4,4,0,0">
+                                        <ContentPresenter ContentSource="Header"
+                                                          TextBlock.Foreground="{StaticResource MetallicSilver}"
+                                                          TextBlock.FontWeight="SemiBold"/>
+                                    </Border>
+                                    
+                                    <!-- Content -->
+                                    <ContentPresenter Grid.Row="1"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="15">
+    <!-- Main Background with Subtle Gradient -->
+    <Border Background="{StaticResource DarkMetallic}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="18">
 
-            <!-- File Menu -->
-            <GroupBox Header="📁 File" Margin="0,0,0,15" Foreground="White" BorderBrush="#3f3f46">
-                <StackPanel>
-                    <Button Content="Load Model" Command="{Binding LoadModelCommand}" 
-                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
-                    <!-- Add Unload Model button -->
-                    <Button Content="Unload Model" Command="{Binding UnloadModelCommand}" 
-                            Style="{StaticResource DangerButton}" Margin="2" Padding="10,5"
-                            IsEnabled="{Binding IsModelLoaded}"/>
-                    <Button Content="Save Profile" Command="{Binding SaveProfileCommand}" 
-                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
-                    <Button Content="Load Profile" Command="{Binding LoadProfileCommand}" 
-                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
-                    <Button Content="Estimate Volume and Cost" Command="{Binding EstimateVolumeAndCostCommand}" 
-                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
-                    <Button Content="Preferences" Command="{Binding ShowPreferencesCommand}" 
-                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
-                    <Button Content="Exit" Command="{Binding ExitCommand}" 
-                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
-                </StackPanel>
-            </GroupBox>
+                <!-- File Menu -->
+                <GroupBox Header="📁 FILE OPERATIONS" Style="{StaticResource LuxuryGroupBox}" Margin="0,0,0,18">
+                    <StackPanel>
+                        <Button Content="LOAD MODEL" Command="{Binding LoadModelCommand}" 
+                                Style="{StaticResource LuxuryButton}" Margin="0,3" Padding="12,8"/>
+                        <Button Content="UNLOAD MODEL" Command="{Binding UnloadModelCommand}" 
+                                Style="{StaticResource DangerLuxuryButton}" Margin="0,3" Padding="12,8"
+                                IsEnabled="{Binding IsModelLoaded}"/>
+                        <Button Content="SAVE PROFILE" Command="{Binding SaveProfileCommand}" 
+                                Style="{StaticResource LuxuryButton}" Margin="0,3" Padding="12,8"/>
+                        <Button Content="LOAD PROFILE" Command="{Binding LoadProfileCommand}" 
+                                Style="{StaticResource LuxuryButton}" Margin="0,3" Padding="12,8"/>
+                        <Button Content="ESTIMATE VOLUME and COST" Command="{Binding EstimateVolumeAndCostCommand}" 
+                                Style="{StaticResource LuxuryButton}" Margin="0,3" Padding="12,8"/>
+                        <Button Content="PREFERENCES" Command="{Binding ShowPreferencesCommand}" 
+                                Style="{StaticResource LuxuryButton}" Margin="0,3" Padding="12,8"/>
+                        <Button Content="EXIT APPLICATION" Command="{Binding ExitCommand}" 
+                                Style="{StaticResource LuxuryButton}" Margin="0,3" Padding="12,8"/>
+                    </StackPanel>
+                </GroupBox>
 
-            <!-- View Menu -->
-            <GroupBox Header="👁️ View" Margin="0,0,0,15" Foreground="White" BorderBrush="#3f3f46">
-                <UniformGrid Rows="2" Columns="2" Margin="5">
-                    <Button Content="TOP" Command="{Binding TopViewCommand}" 
-                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
-                    <Button Content="FRONT" Command="{Binding FrontViewCommand}" 
-                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
-                    <Button Content="LEFT" Command="{Binding SideViewCommand}" 
-                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
-                    <Button Content="RESET" Command="{Binding ResetViewCommand}" 
-                            Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
-                </UniformGrid>
-            </GroupBox>
+                <!-- View Menu -->
+                <GroupBox Header="👁️ CAMERA VIEWS" Style="{StaticResource LuxuryGroupBox}" Margin="0,0,0,18">
+                    <UniformGrid Rows="2" Columns="2" Margin="4">
+                        <Button Content="TOP VIEW" Command="{Binding TopViewCommand}" 
+                                Style="{StaticResource PrimarySilverButton}" Margin="4" Padding="12,10"/>
+                        <Button Content="FRONT VIEW" Command="{Binding FrontViewCommand}" 
+                                Style="{StaticResource PrimarySilverButton}" Margin="4" Padding="12,10"/>
+                        <Button Content="SIDE VIEW" Command="{Binding SideViewCommand}" 
+                                Style="{StaticResource PrimarySilverButton}" Margin="4" Padding="12,10"/>
+                        <Button Content="RESET VIEW" Command="{Binding ResetViewCommand}" 
+                                Style="{StaticResource PrimarySilverButton}" Margin="4" Padding="12,10"/>
+                    </UniformGrid>
+                </GroupBox>
 
-            <!-- Transformation Tabs -->
-            <GroupBox Header="🛠️ Transformations" Margin="0,0,0,15" Foreground="White" BorderBrush="#3f3f46">
-                <TabControl SelectedIndex="{Binding SelectedTabIndex}">
+                <!-- Transformation Tabs -->
+                <GroupBox Header="🛠️ TRANSFORMATIONS" Style="{StaticResource LuxuryGroupBox}" Margin="0,0,0,18">
+                    <TabControl SelectedIndex="{Binding SelectedTabIndex}" 
+                                Background="Transparent"
+                                BorderThickness="0">
 
-                    <!-- Move Tab -->
-                    <TabItem Header="Move" Style="{StaticResource ModernTabItem}">
-                        <StackPanel Margin="5">
-                            <StackPanel Orientation="Horizontal" Margin="0,5">
-                                <Button Content="Center" Command="{Binding CenterModelCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
-                                <Button Content="Place on Platform" Command="{Binding PlaceOnPlatformCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="2" Padding="10,5"/>
-                            </StackPanel>
+                        <!-- Move Tab -->
+                        <TabItem Header="MOVE" Style="{StaticResource LuxuryTabItem}">
+                            <Border Background="#1a1a1a" Padding="12" CornerRadius="0,0,6,6">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,8" HorizontalAlignment="Center">
+                                        <Button Content="CENTER MODEL" Command="{Binding CenterModelCommand}" 
+                                                Style="{StaticResource PrimarySilverButton}" Margin="4" Padding="14,8"/>
+                                        <Button Content="PLACE ON PLATFORM" Command="{Binding PlaceOnPlatformCommand}" 
+                                                Style="{StaticResource PrimarySilverButton}" Margin="4" Padding="14,8"/>
+                                    </StackPanel>
 
-                            <TextBlock Text="Move Step (mm):" Foreground="#e0e0e0" Margin="5,10,5,2"/>
-                            <TextBox Text="{Binding MoveStep}" Style="{StaticResource ModernTextBox}" Margin="5,0,5,10"/>
+                                    <TextBlock Text="MOVE INCREMENT (MM)" Foreground="{StaticResource MetallicSilver}" 
+                                               FontWeight="SemiBold" FontSize="11" Margin="0,12,0,6"/>
+                                    <TextBox Text="{Binding MoveStep}" Style="{StaticResource LuxuryTextBox}" Margin="0,0,0,16"/>
 
-                            <TextBlock Text="X Axis:" FontWeight="Bold" Foreground="#00d4ff" Margin="5,5,5,2"/>
-                            <StackPanel Orientation="Horizontal" Margin="5">
-                                <Button Content="X-" Command="{Binding MoveXMinusCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
-                                <TextBlock Text="{Binding MoveStep, StringFormat={}{0} mm}" Foreground="White" 
-                                           VerticalAlignment="Center" Margin="10,0"/>
-                                <Button Content="X+" Command="{Binding MoveXPlusCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
-                            </StackPanel>
+                                    <!-- X Axis -->
+                                    <Border Background="#0d0d0d" BorderBrush="#303030" BorderThickness="1" 
+                                            CornerRadius="4" Padding="10" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <TextBlock Text="X AXIS TRANSLATION" FontWeight="Bold" 
+                                                       Foreground="{StaticResource MetallicSilver}" 
+                                                       FontSize="11" Margin="0,0,0,8"/>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                <Button Content="◄ X−" Command="{Binding MoveXMinusCommand}" 
+                                                        Style="{StaticResource LuxuryButton}" Margin="4" Padding="18,10" MinWidth="80"/>
+                                                <TextBlock Text="{Binding MoveStep, StringFormat={}{0} mm}" 
+                                                           Foreground="#E8E8E8" FontWeight="SemiBold" FontSize="13"
+                                                           VerticalAlignment="Center" Margin="16,0" MinWidth="60" TextAlignment="Center"/>
+                                                <Button Content="X+ ►" Command="{Binding MoveXPlusCommand}" 
+                                                        Style="{StaticResource LuxuryButton}" Margin="4" Padding="18,10" MinWidth="80"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
 
-                            <TextBlock Text="Y Axis:" FontWeight="Bold" Foreground="#00d4ff" Margin="5,10,5,2"/>
-                            <StackPanel Orientation="Horizontal" Margin="5">
-                                <Button Content="Y-" Command="{Binding MoveYMinusCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
-                                <TextBlock Text="{Binding MoveStep, StringFormat={}{0} mm}" Foreground="White" 
-                                           VerticalAlignment="Center" Margin="10,0"/>
-                                <Button Content="Y+" Command="{Binding MoveYPlusCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
-                            </StackPanel>
+                                    <!-- Y Axis -->
+                                    <Border Background="#0d0d0d" BorderBrush="#303030" BorderThickness="1" 
+                                            CornerRadius="4" Padding="10" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <TextBlock Text="Y AXIS TRANSLATION" FontWeight="Bold" 
+                                                       Foreground="{StaticResource MetallicSilver}" 
+                                                       FontSize="11" Margin="0,0,0,8"/>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                <Button Content="◄ Y−" Command="{Binding MoveYMinusCommand}" 
+                                                        Style="{StaticResource LuxuryButton}" Margin="4" Padding="18,10" MinWidth="80"/>
+                                                <TextBlock Text="{Binding MoveStep, StringFormat={}{0} mm}" 
+                                                           Foreground="#E8E8E8" FontWeight="SemiBold" FontSize="13"
+                                                           VerticalAlignment="Center" Margin="16,0" MinWidth="60" TextAlignment="Center"/>
+                                                <Button Content="Y+ ►" Command="{Binding MoveYPlusCommand}" 
+                                                        Style="{StaticResource LuxuryButton}" Margin="4" Padding="18,10" MinWidth="80"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
 
-                            <TextBlock Text="Z Axis:" FontWeight="Bold" Foreground="#00d4ff" Margin="5,10,5,2"/>
-                            <StackPanel Orientation="Horizontal" Margin="5">
-                                <Button Content="Z-" Command="{Binding MoveZMinusCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
-                                <TextBlock Text="{Binding MoveStep, StringFormat={}{0} mm}" Foreground="White" 
-                                           VerticalAlignment="Center" Margin="10,0"/>
-                                <Button Content="Z+" Command="{Binding MoveZPlusCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </TabItem>
+                                    <!-- Z Axis -->
+                                    <Border Background="#0d0d0d" BorderBrush="#303030" BorderThickness="1" 
+                                            CornerRadius="4" Padding="10">
+                                        <StackPanel>
+                                            <TextBlock Text="Z AXIS TRANSLATION" FontWeight="Bold" 
+                                                       Foreground="{StaticResource MetallicSilver}" 
+                                                       FontSize="11" Margin="0,0,0,8"/>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                <Button Content="◄ Z−" Command="{Binding MoveZMinusCommand}" 
+                                                        Style="{StaticResource LuxuryButton}" Margin="4" Padding="18,10" MinWidth="80"/>
+                                                <TextBlock Text="{Binding MoveStep, StringFormat={}{0} mm}" 
+                                                           Foreground="#E8E8E8" FontWeight="SemiBold" FontSize="13"
+                                                           VerticalAlignment="Center" Margin="16,0" MinWidth="60" TextAlignment="Center"/>
+                                                <Button Content="Z+ ►" Command="{Binding MoveZPlusCommand}" 
+                                                        Style="{StaticResource LuxuryButton}" Margin="4" Padding="18,10" MinWidth="80"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </TabItem>
 
-                    <!-- Rotate Tab -->
-                    <TabItem Header="Rotate" Style="{StaticResource ModernTabItem}">
-                        <StackPanel Margin="5">
-                            <TextBlock Text="Rotate Step (°):" Foreground="#e0e0e0" Margin="5,5,5,2"/>
-                            <TextBox Text="{Binding RotateStep}" Style="{StaticResource ModernTextBox}" Margin="5,0,5,10"/>
+                        <!-- Rotate Tab -->
+                        <TabItem Header="ROTATE" Style="{StaticResource LuxuryTabItem}">
+                            <Border Background="#1a1a1a" Padding="12" CornerRadius="0,0,6,6">
+                                <StackPanel>
+                                    <TextBlock Text="ROTATION INCREMENT (DEGREES)" Foreground="{StaticResource MetallicSilver}" 
+                                               FontWeight="SemiBold" FontSize="11" Margin="0,8,0,6"/>
+                                    <TextBox Text="{Binding RotateStep}" Style="{StaticResource LuxuryTextBox}" Margin="0,0,0,16"/>
 
-                            <TextBlock Text="X Axis:" FontWeight="Bold" Foreground="#00d4ff" Margin="5,5,5,2"/>
-                            <StackPanel Orientation="Horizontal" Margin="5">
-                                <Button Content="X-" Command="{Binding RotateXMinusCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
-                                <TextBlock Text="{Binding RotateStep, StringFormat={}{0}°}" Foreground="White" 
-                                           VerticalAlignment="Center" Margin="10,0"/>
-                                <Button Content="X+" Command="{Binding RotateXPlusCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
-                            </StackPanel>
+                                    <!-- X Rotation -->
+                                    <Border Background="#0d0d0d" BorderBrush="#303030" BorderThickness="1" 
+                                            CornerRadius="4" Padding="10" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <TextBlock Text="X AXIS ROTATION" FontWeight="Bold" 
+                                                       Foreground="{StaticResource MetallicSilver}" 
+                                                       FontSize="11" Margin="0,0,0,8"/>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                <Button Content="↻ X−" Command="{Binding RotateXMinusCommand}" 
+                                                        Style="{StaticResource LuxuryButton}" Margin="4" Padding="18,10" MinWidth="80"/>
+                                                <TextBlock Text="{Binding RotateStep, StringFormat={}{0}°}" 
+                                                           Foreground="#E8E8E8" FontWeight="SemiBold" FontSize="13"
+                                                           VerticalAlignment="Center" Margin="16,0" MinWidth="60" TextAlignment="Center"/>
+                                                <Button Content="X+ ↺" Command="{Binding RotateXPlusCommand}" 
+                                                        Style="{StaticResource LuxuryButton}" Margin="4" Padding="18,10" MinWidth="80"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
 
-                            <TextBlock Text="Y Axis:" FontWeight="Bold" Foreground="#00d4ff" Margin="5,10,5,2"/>
-                            <StackPanel Orientation="Horizontal" Margin="5">
-                                <Button Content="Y-" Command="{Binding RotateYMinusCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
-                                <TextBlock Text="{Binding RotateStep, StringFormat={}{0}°}" Foreground="White" 
-                                           VerticalAlignment="Center" Margin="10,0"/>
-                                <Button Content="Y+" Command="{Binding RotateYPlusCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
-                            </StackPanel>
+                                    <!-- Y Rotation -->
+                                    <Border Background="#0d0d0d" BorderBrush="#303030" BorderThickness="1" 
+                                            CornerRadius="4" Padding="10" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <TextBlock Text="Y AXIS ROTATION" FontWeight="Bold" 
+                                                       Foreground="{StaticResource MetallicSilver}" 
+                                                       FontSize="11" Margin="0,0,0,8"/>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                <Button Content="↻ Y−" Command="{Binding RotateYMinusCommand}" 
+                                                        Style="{StaticResource LuxuryButton}" Margin="4" Padding="18,10" MinWidth="80"/>
+                                                <TextBlock Text="{Binding RotateStep, StringFormat={}{0}°}" 
+                                                           Foreground="#E8E8E8" FontWeight="SemiBold" FontSize="13"
+                                                           VerticalAlignment="Center" Margin="16,0" MinWidth="60" TextAlignment="Center"/>
+                                                <Button Content="Y+ ↺" Command="{Binding RotateYPlusCommand}" 
+                                                        Style="{StaticResource LuxuryButton}" Margin="4" Padding="18,10" MinWidth="80"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
 
-                            <TextBlock Text="Z Axis:" FontWeight="Bold" Foreground="#00d4ff" Margin="5,10,5,2"/>
-                            <StackPanel Orientation="Horizontal" Margin="5">
-                                <Button Content="Z-" Command="{Binding RotateZMinusCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
-                                <TextBlock Text="{Binding RotateStep, StringFormat={}{0}°}" Foreground="White" 
-                                           VerticalAlignment="Center" Margin="10,0"/>
-                                <Button Content="Z+" Command="{Binding RotateZPlusCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="2" Padding="15,8"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </TabItem>
+                                    <!-- Z Rotation -->
+                                    <Border Background="#0d0d0d" BorderBrush="#303030" BorderThickness="1" 
+                                            CornerRadius="4" Padding="10">
+                                        <StackPanel>
+                                            <TextBlock Text="Z AXIS ROTATION" FontWeight="Bold" 
+                                                       Foreground="{StaticResource MetallicSilver}" 
+                                                       FontSize="11" Margin="0,0,0,8"/>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                <Button Content="↻ Z−" Command="{Binding RotateZMinusCommand}" 
+                                                        Style="{StaticResource LuxuryButton}" Margin="4" Padding="18,10" MinWidth="80"/>
+                                                <TextBlock Text="{Binding RotateStep, StringFormat={}{0}°}" 
+                                                           Foreground="#E8E8E8" FontWeight="SemiBold" FontSize="13"
+                                                           VerticalAlignment="Center" Margin="16,0" MinWidth="60" TextAlignment="Center"/>
+                                                <Button Content="Z+ ↺" Command="{Binding RotateZPlusCommand}" 
+                                                        Style="{StaticResource LuxuryButton}" Margin="4" Padding="18,10" MinWidth="80"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </TabItem>
 
-                    <!-- Scale Tab -->
-                    <TabItem Header="Scale" Style="{StaticResource ModernTabItem}">
-                        <StackPanel Margin="5">
-                            <TextBlock Text="Uniform Scale:" FontWeight="Bold" Foreground="#00d4ff" Margin="5,5,5,2"/>
-                            <StackPanel Orientation="Horizontal" Margin="5">
-                                <TextBox Text="{Binding ScaleValue}" Width="60" Style="{StaticResource ModernTextBox}" 
-                                         VerticalAlignment="Center"/>
-                                <Button Content="Scale" Command="{Binding ScaleUniformCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="10,0,0,0" Padding="15,8"/>
-                            </StackPanel>
+                        <!-- Scale Tab -->
+                        <TabItem Header="SCALE" Style="{StaticResource LuxuryTabItem}">
+                            <Border Background="#1a1a1a" Padding="12" CornerRadius="0,0,6,6">
+                                <StackPanel>
+                                    <!-- Uniform Scaling -->
+                                    <Border Background="#0d0d0d" BorderBrush="#404040" BorderThickness="1" 
+                                            CornerRadius="4" Padding="12" Margin="0,8,0,16">
+                                        <StackPanel>
+                                            <TextBlock Text="UNIFORM SCALING" FontWeight="Bold" 
+                                                       Foreground="{StaticResource MetallicSilver}" 
+                                                       FontSize="12" Margin="0,0,0,10"/>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Grid.Column="0" Text="{Binding ScaleValue}" 
+                                                         Style="{StaticResource LuxuryTextBox}" 
+                                                         VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                                <Button Grid.Column="1" Content="APPLY SCALE" 
+                                                        Command="{Binding ScaleUniformCommand}" 
+                                                        Style="{StaticResource PrimarySilverButton}" 
+                                                        Padding="20,8" MinWidth="120"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
 
-                            <TextBlock Text="Individual Axis Scaling:" FontWeight="Bold" Foreground="#00d4ff" Margin="5,15,5,5"/>
+                                    <TextBlock Text="INDIVIDUAL AXIS SCALING" FontWeight="Bold" 
+                                               Foreground="{StaticResource MetallicSilver}" 
+                                               FontSize="11" Margin="0,0,0,12" TextAlignment="Center"/>
 
-                            <TextBlock Text="X Scale:" Foreground="#e0e0e0" Margin="5,5,5,2"/>
-                            <StackPanel Orientation="Horizontal" Margin="5">
-                                <TextBox Text="{Binding ScaleX}" Width="60" Style="{StaticResource ModernTextBox}" 
-                                         VerticalAlignment="Center"/>
-                                <Button Content="Scale X" Command="{Binding ScaleXAxisCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="10,0,0,0" Padding="10,5"/>
-                            </StackPanel>
+                                    <!-- X Scale -->
+                                    <Border Background="#0d0d0d" BorderBrush="#303030" BorderThickness="1" 
+                                            CornerRadius="4" Padding="10" Margin="0,0,0,10">
+                                        <StackPanel>
+                                            <TextBlock Text="X AXIS SCALE" Foreground="#B0B0B0" 
+                                                       FontWeight="SemiBold" FontSize="10" Margin="0,0,0,6"/>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Grid.Column="0" Text="{Binding ScaleX}" 
+                                                         Style="{StaticResource LuxuryTextBox}" 
+                                                         VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                <Button Grid.Column="1" Content="SCALE X" 
+                                                        Command="{Binding ScaleXAxisCommand}" 
+                                                        Style="{StaticResource LuxuryButton}" 
+                                                        Padding="16,6" MinWidth="90"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
 
-                            <TextBlock Text="Y Scale:" Foreground="#e0e0e0" Margin="5,5,5,2"/>
-                            <StackPanel Orientation="Horizontal" Margin="5">
-                                <TextBox Text="{Binding ScaleY}" Width="60" Style="{StaticResource ModernTextBox}" 
-                                         VerticalAlignment="Center"/>
-                                <Button Content="Scale Y" Command="{Binding ScaleYAxisCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="10,0,0,0" Padding="10,5"/>
-                            </StackPanel>
+                                    <!-- Y Scale -->
+                                    <Border Background="#0d0d0d" BorderBrush="#303030" BorderThickness="1" 
+                                            CornerRadius="4" Padding="10" Margin="0,0,0,10">
+                                        <StackPanel>
+                                            <TextBlock Text="Y AXIS SCALE" Foreground="#B0B0B0" 
+                                                       FontWeight="SemiBold" FontSize="10" Margin="0,0,0,6"/>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Grid.Column="0" Text="{Binding ScaleY}" 
+                                                         Style="{StaticResource LuxuryTextBox}" 
+                                                         VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                <Button Grid.Column="1" Content="SCALE Y" 
+                                                        Command="{Binding ScaleYAxisCommand}" 
+                                                        Style="{StaticResource LuxuryButton}" 
+                                                        Padding="16,6" MinWidth="90"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
 
-                            <TextBlock Text="Z Scale:" Foreground="#e0e0e0" Margin="5,5,5,2"/>
-                            <StackPanel Orientation="Horizontal" Margin="5">
-                                <TextBox Text="{Binding ScaleZ}" Width="60" Style="{StaticResource ModernTextBox}" 
-                                         VerticalAlignment="Center"/>
-                                <Button Content="Scale Z" Command="{Binding ScaleZAxisCommand}" 
-                                        Style="{StaticResource ModernButton}" Margin="10,0,0,0" Padding="10,5"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </TabItem>
+                                    <!-- Z Scale -->
+                                    <Border Background="#0d0d0d" BorderBrush="#303030" BorderThickness="1" 
+                                            CornerRadius="4" Padding="10">
+                                        <StackPanel>
+                                            <TextBlock Text="Z AXIS SCALE" Foreground="#B0B0B0" 
+                                                       FontWeight="SemiBold" FontSize="10" Margin="0,0,0,6"/>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBox Grid.Column="0" Text="{Binding ScaleZ}" 
+                                                         Style="{StaticResource LuxuryTextBox}" 
+                                                         VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                <Button Grid.Column="1" Content="SCALE Z" 
+                                                        Command="{Binding ScaleZAxisCommand}" 
+                                                        Style="{StaticResource LuxuryButton}" 
+                                                        Padding="16,6" MinWidth="90"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </TabItem>
 
-                    <!-- View Tab -->
-                    <TabItem Header="View" Style="{StaticResource ModernTabItem}">
-                        <StackPanel Margin="5">
-                            <TextBlock Text="Mouse Sensitivity:" FontWeight="Bold" Foreground="#00d4ff" Margin="0,0,0,5"/>
-                            
-                            <TextBlock Text="Rotation Sensitivity:" Foreground="#e0e0e0" FontSize="11" Margin="0,2"/>
-                            <Slider Value="{Binding RotationSensitivity}" Minimum="0.1" Maximum="3.0" 
-                                    TickFrequency="0.1" IsSnapToTickEnabled="True" Margin="0,2"/>
+                        <!-- View Settings Tab -->
+                        <TabItem Header="VIEW" Style="{StaticResource LuxuryTabItem}">
+                            <Border Background="#1a1a1a" Padding="12" CornerRadius="0,0,6,6">
+                                <StackPanel>
+                                    <TextBlock Text="MOUSE SENSITIVITY CONTROLS" FontWeight="Bold" 
+                                               Foreground="{StaticResource MetallicSilver}" 
+                                               FontSize="12" Margin="0,8,0,16" TextAlignment="Center"/>
 
-                            <TextBlock Text="Pan Sensitivity:" Foreground="#e0e0e0" FontSize="11" Margin="0,5,0,2"/>
-                            <Slider Value="{Binding PanSensitivity}" Minimum="0.1" Maximum="3.0" 
-                                    TickFrequency="0.1" IsSnapToTickEnabled="True" Margin="0,2"/>
+                                    <!-- Rotation Sensitivity -->
+                                    <Border Background="#0d0d0d" BorderBrush="#303030" BorderThickness="1" 
+                                            CornerRadius="4" Padding="12" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <Grid Margin="0,0,0,8">
+                                                <TextBlock Text="ROTATION SENSITIVITY" 
+                                                           Foreground="#B0B0B0" FontWeight="SemiBold" 
+                                                           FontSize="10" HorizontalAlignment="Left"/>
+                                                <TextBlock Text="{Binding RotationSensitivity, StringFormat={}{0:F1}x}" 
+                                                           Foreground="{StaticResource MetallicSilver}" 
+                                                           FontWeight="Bold" FontSize="11" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                            <Slider Value="{Binding RotationSensitivity}" 
+                                                    Minimum="0.1" Maximum="3.0" 
+                                                    TickFrequency="0.1" IsSnapToTickEnabled="True"
+                                                    Style="{StaticResource LuxurySlider}"/>
+                                        </StackPanel>
+                                    </Border>
 
-                            <TextBlock Text="Zoom Sensitivity:" Foreground="#e0e0e0" FontSize="11" Margin="0,5,0,2"/>
-                            <Slider Value="{Binding ZoomSensitivity}" Minimum="0.1" Maximum="3.0" 
-                                    TickFrequency="0.1" IsSnapToTickEnabled="True" Margin="0,2"/>
-                        </StackPanel>
-                    </TabItem>
-                </TabControl>
-            </GroupBox>
+                                    <!-- Pan Sensitivity -->
+                                    <Border Background="#0d0d0d" BorderBrush="#303030" BorderThickness="1" 
+                                            CornerRadius="4" Padding="12" Margin="0,0,0,12">
+                                        <StackPanel>
+                                            <Grid Margin="0,0,0,8">
+                                                <TextBlock Text="PAN SENSITIVITY" 
+                                                           Foreground="#B0B0B0" FontWeight="SemiBold" 
+                                                           FontSize="10" HorizontalAlignment="Left"/>
+                                                <TextBlock Text="{Binding PanSensitivity, StringFormat={}{0:F1}x}" 
+                                                           Foreground="{StaticResource MetallicSilver}" 
+                                                           FontWeight="Bold" FontSize="11" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                            <Slider Value="{Binding PanSensitivity}" 
+                                                    Minimum="0.1" Maximum="3.0" 
+                                                    TickFrequency="0.1" IsSnapToTickEnabled="True"
+                                                    Style="{StaticResource LuxurySlider}"/>
+                                        </StackPanel>
+                                    </Border>
 
-            <!-- Slice Button -->
-            <Button Content="🔪 SLICE MODEL" Command="{Binding SliceModelCommand}" 
-                    IsEnabled="{Binding IsModelLoaded}" Style="{StaticResource PrimaryButton}" 
-                    Padding="20,12" Margin="5" FontSize="14" FontWeight="Bold"/>
+                                    <!-- Zoom Sensitivity -->
+                                    <Border Background="#0d0d0d" BorderBrush="#303030" BorderThickness="1" 
+                                            CornerRadius="4" Padding="12">
+                                        <StackPanel>
+                                            <Grid Margin="0,0,0,8">
+                                                <TextBlock Text="ZOOM SENSITIVITY" 
+                                                           Foreground="#B0B0B0" FontWeight="SemiBold" 
+                                                           FontSize="10" HorizontalAlignment="Left"/>
+                                                <TextBlock Text="{Binding ZoomSensitivity, StringFormat={}{0:F1}x}" 
+                                                           Foreground="{StaticResource MetallicSilver}" 
+                                                           FontWeight="Bold" FontSize="11" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                            <Slider Value="{Binding ZoomSensitivity}" 
+                                                    Minimum="0.1" Maximum="3.0" 
+                                                    TickFrequency="0.1" IsSnapToTickEnabled="True"
+                                                    Style="{StaticResource LuxurySlider}"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </TabItem>
+                    </TabControl>
+                </GroupBox>
 
-        </StackPanel>
-    </ScrollViewer>
+                <!-- Premium Slice Button with Shine Effect -->
+                <Border Background="#0d0d0d" 
+                        BorderBrush="{StaticResource MetallicSilver}"
+                        BorderThickness="2"
+                        CornerRadius="8"
+                        Padding="2">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#80FFFFFF" BlurRadius="15" ShadowDepth="0" Opacity="0.4"/>
+                    </Border.Effect>
+                    
+                    <Button Command="{Binding SliceModelCommand}" 
+                            IsEnabled="{Binding IsModelLoaded}"
+                            Cursor="Hand"
+                            FontFamily="Segoe UI"
+                            FontSize="16"
+                            FontWeight="Bold"
+                            Foreground="#FFFFFF"
+                            BorderThickness="0"
+                            Padding="0,16">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Grid>
+                                    <Border x:Name="MainBorder"
+                                            CornerRadius="6">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="#505050" Offset="0"/>
+                                                <GradientStop Color="#383838" Offset="0.5"/>
+                                                <GradientStop Color="#505050" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="3" Opacity="0.7"/>
+                                        </Border.Effect>
+                                        
+                                        <Grid>
+                                            <!-- Animated Shine Overlay -->
+                                            <Border x:Name="ShineOverlay"
+                                                    Background="{StaticResource SilverShine}"
+                                                    CornerRadius="6"
+                                                    Opacity="0.2"
+                                                    IsHitTestVisible="False"/>
+                                            
+                                            <!-- Button Content -->
+                                            <StackPanel Orientation="Horizontal" 
+                                                        HorizontalAlignment="Center" 
+                                                        VerticalAlignment="Center">
+                                                <TextBlock Text="🔪" FontSize="20" Margin="0,0,8,0"/>
+                                                <TextBlock Text="SLICE MODEL" 
+                                                           FontSize="16" 
+                                                           FontWeight="Bold"
+                                                           VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                                
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Trigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="ShineOverlay"
+                                                                     Storyboard.TargetProperty="Opacity"
+                                                                     To="0.4" Duration="0:0:0.3"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.EnterActions>
+                                        <Trigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="ShineOverlay"
+                                                                     Storyboard.TargetProperty="Opacity"
+                                                                     To="0.2" Duration="0:0:0.3"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.ExitActions>
+                                    </Trigger>
+                                    
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="MainBorder" Property="Effect">
+                                            <Setter.Value>
+                                                <DropShadowEffect Color="Black" BlurRadius="5" ShadowDepth="1" Opacity="0.8"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                    
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.4"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
 </UserControl>

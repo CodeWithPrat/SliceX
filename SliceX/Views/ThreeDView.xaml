@@ -14,99 +14,352 @@
 
     <UserControl.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        
-        <!-- Drag Overlay Converter -->
         <converters:BooleanToDragOverlayConverter x:Key="BooleanToDragOverlayConverter"/>
         
-        <!-- Modern Button Style -->
-        <Style x:Key="ModernButton" TargetType="Button">
-            <Setter Property="Background" Value="#2d2d30"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="12,6"/>
+        <!-- Premium Metallic Gradient Brushes -->
+        <LinearGradientBrush x:Key="MetallicSilverBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#B8B8B8" Offset="0"/>
+            <GradientStop Color="#E8E8E8" Offset="0.3"/>
+            <GradientStop Color="#C0C0C0" Offset="0.5"/>
+            <GradientStop Color="#F0F0F0" Offset="0.7"/>
+            <GradientStop Color="#BEBEBE" Offset="1"/>
+        </LinearGradientBrush>
+        
+        <LinearGradientBrush x:Key="DarkMetallicBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#1a1a1a" Offset="0"/>
+            <GradientStop Color="#0d0d0d" Offset="0.5"/>
+            <GradientStop Color="#1a1a1a" Offset="1"/>
+        </LinearGradientBrush>
+        
+        <LinearGradientBrush x:Key="AccentMetallicBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#4a5568" Offset="0"/>
+            <GradientStop Color="#718096" Offset="0.5"/>
+            <GradientStop Color="#4a5568" Offset="1"/>
+        </LinearGradientBrush>
+        
+        <RadialGradientBrush x:Key="ShinySpotBrush" GradientOrigin="0.3,0.3">
+            <GradientStop Color="#FFFFFF" Offset="0"/>
+            <GradientStop Color="#E0E0E0" Offset="0.3"/>
+            <GradientStop Color="#C0C0C0" Offset="0.6"/>
+            <GradientStop Color="#A0A0A0" Offset="1"/>
+        </RadialGradientBrush>
+
+        <!-- Premium Button Style with Metallic Effect -->
+        <Style x:Key="PremiumMetallicButton" TargetType="Button">
+            <Setter Property="Foreground" Value="#E8E8E8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#4a5568"/>
+            <Setter Property="Padding" Value="16,8"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="13"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="3" 
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
+                        <Grid>
+                            <Border x:Name="MainBorder"
+                                    CornerRadius="6"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    BorderBrush="{TemplateBinding BorderBrush}">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="#2a2a2a" Offset="0"/>
+                                        <GradientStop Color="#1a1a1a" Offset="0.5"/>
+                                        <GradientStop Color="#0d0d0d" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Border.Effect>
+                                    <DropShadowEffect ShadowDepth="2" BlurRadius="8" Color="#000000" Opacity="0.6"/>
+                                </Border.Effect>
+                                
+                                <Grid>
+                                    <!-- Metallic shine overlay -->
+                                    <Border x:Name="ShineOverlay" 
+                                            CornerRadius="6" 
+                                            Opacity="0.15"
+                                            Background="{StaticResource ShinySpotBrush}"/>
+                                    
+                                    <!-- Content -->
+                                    <ContentPresenter Margin="{TemplateBinding Padding}"
+                                                    HorizontalAlignment="Center" 
+                                                    VerticalAlignment="Center"/>
+                                    
+                                    <!-- Top highlight for 3D effect -->
+                                    <Border CornerRadius="6,6,0,0" 
+                                            Height="1" 
+                                            VerticalAlignment="Top"
+                                            Opacity="0.3">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                <GradientStop Color="Transparent" Offset="0"/>
+                                                <GradientStop Color="#FFFFFF" Offset="0.5"/>
+                                                <GradientStop Color="Transparent" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                        
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="MainBorder" Property="BorderBrush" Value="#718096"/>
+                                <Setter TargetName="ShineOverlay" Property="Opacity" Value="0.25"/>
+                                <Setter TargetName="MainBorder" Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#3a3a3a" Offset="0"/>
+                                            <GradientStop Color="#2a2a2a" Offset="0.5"/>
+                                            <GradientStop Color="#1d1d1d" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="MainBorder" Property="BorderBrush" Value="#8899AA"/>
+                                <Setter TargetName="ShineOverlay" Property="Opacity" Value="0.35"/>
+                                <Setter TargetName="MainBorder" Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#0d0d0d" Offset="0"/>
+                                            <GradientStop Color="#1a1a1a" Offset="0.5"/>
+                                            <GradientStop Color="#2a2a2a" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#3e3e42"/>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#007ACC"/>
-                </Trigger>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Opacity" Value="0.5"/>
-                </Trigger>
-            </Style.Triggers>
         </Style>
+
+        <!-- Premium Panel Style -->
+        <Style x:Key="PremiumPanel" TargetType="Border">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="BorderBrush" Value="#3a3a3a"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#1a1a1a" Offset="0"/>
+                        <GradientStop Color="#0d0d0d" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect ShadowDepth="0" BlurRadius="20" Color="#000000" Opacity="0.8"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </UserControl.Resources>
 
     <Grid>
-        <!-- Drag Drop Overlay -->
+        <!-- Main Background with subtle texture -->
+        <Border>
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#0a0a0a" Offset="0"/>
+                    <GradientStop Color="#121212" Offset="0.5"/>
+                    <GradientStop Color="#0a0a0a" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+        </Border>
+
+        <!-- Drag Drop Overlay - Premium Style -->
         <Border x:Name="DragDropOverlay"
-                Background="{Binding IsDragOver, Converter={StaticResource BooleanToDragOverlayConverter}}"
                 Visibility="{Binding IsDragOver, Converter={StaticResource BooleanToVisibilityConverter}}"
-                CornerRadius="10"
+                CornerRadius="12"
                 Margin="20"
-                BorderBrush="#007ACC"
                 BorderThickness="2"
                 Panel.ZIndex="1000">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1" Opacity="0.95">
+                    <GradientStop Color="#1a1a1a" Offset="0"/>
+                    <GradientStop Color="#0d0d0d" Offset="0.5"/>
+                    <GradientStop Color="#1a1a1a" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.BorderBrush>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#6a7a8a" Offset="0"/>
+                    <GradientStop Color="#C0C0C0" Offset="0.5"/>
+                    <GradientStop Color="#6a7a8a" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.BorderBrush>
             <Border.Effect>
-                <DropShadowEffect ShadowDepth="0" BlurRadius="20" Color="#007ACC" Opacity="0.7"/>
+                <DropShadowEffect ShadowDepth="0" BlurRadius="30" Color="#C0C0C0" Opacity="0.6"/>
             </Border.Effect>
-            <Viewbox Stretch="Uniform">
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock Text="📁" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                    <TextBlock Text="{Binding DragDropMessage}" 
-                               FontSize="16" 
-                               FontWeight="Bold"
-                               Foreground="White"
-                               HorizontalAlignment="Center"
-                               TextAlignment="Center"/>
-                    <TextBlock Text="Release to load model" 
-                               FontSize="12"
-                               Foreground="#CCCCCC"
-                               HorizontalAlignment="Center"
-                               Margin="0,5,0,0"/>
+            
+            <!-- Inner glow effect -->
+            <Border CornerRadius="12" Margin="1">
+                <Border.Background>
+                    <RadialGradientBrush>
+                        <GradientStop Color="#20FFFFFF" Offset="0.7"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </RadialGradientBrush>
+                </Border.Background>
+                
+                <Viewbox Stretch="Uniform" MaxHeight="200">
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <!-- Metallic icon background -->
+                        <Border Width="100" Height="100" CornerRadius="50" Margin="0,0,0,20">
+                            <Border.Background>
+                                <RadialGradientBrush>
+                                    <GradientStop Color="#2a2a2a" Offset="0"/>
+                                    <GradientStop Color="#1a1a1a" Offset="1"/>
+                                </RadialGradientBrush>
+                            </Border.Background>
+                            <Border.Effect>
+                                <DropShadowEffect ShadowDepth="0" BlurRadius="15" Color="#FFFFFF" Opacity="0.3"/>
+                            </Border.Effect>
+                            <TextBlock Text="📁" FontSize="48" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock.Effect>
+                                    <DropShadowEffect ShadowDepth="0" BlurRadius="10" Color="#C0C0C0" Opacity="0.8"/>
+                                </TextBlock.Effect>
+                            </TextBlock>
+                        </Border>
+                        
+                        <TextBlock Text="{Binding DragDropMessage}" 
+                                   FontSize="18" 
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   TextAlignment="Center"
+                                   Margin="0,0,0,8">
+                            <TextBlock.Foreground>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#D0D0D0" Offset="0"/>
+                                    <GradientStop Color="#FFFFFF" Offset="0.5"/>
+                                    <GradientStop Color="#D0D0D0" Offset="1"/>
+                                </LinearGradientBrush>
+                            </TextBlock.Foreground>
+                            <TextBlock.Effect>
+                                <DropShadowEffect ShadowDepth="0" BlurRadius="8" Color="#FFFFFF" Opacity="0.5"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
+                        
+                        <TextBlock Text="Release to load model" 
+                                   FontSize="13"
+                                   Foreground="#A0A0A0"
+                                   HorizontalAlignment="Center"
+                                   FontWeight="Medium"/>
+                    </StackPanel>
+                </Viewbox>
+            </Border>
+        </Border>
+
+        <!-- 3D Viewport with premium border -->
+        <Border Margin="2" CornerRadius="2">
+            <Border.BorderBrush>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#2a2a2a" Offset="0"/>
+                    <GradientStop Color="#3a3a3a" Offset="0.5"/>
+                    <GradientStop Color="#2a2a2a" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.BorderBrush>
+            <Border.BorderThickness>1</Border.BorderThickness>
+            
+            <hx:HelixViewport3D x:Name="viewport"
+                                Background="#0a0a0a"
+                                ZoomExtentsWhenLoaded="True"
+                                ShowViewCube="True"
+                                IsRotationEnabled="{Binding IsModelLoaded}"
+                                IsPanEnabled="{Binding IsModelLoaded}"
+                                IsZoomEnabled="{Binding IsModelLoaded}"
+                                AllowDrop="True">
+                <hx:DefaultLights/>
+            </hx:HelixViewport3D>
+        </Border>
+
+        <!-- Status and Controls Overlay - Premium Design -->
+        <Border Style="{StaticResource PremiumPanel}"
+                Margin="16" 
+                HorizontalAlignment="Left" 
+                VerticalAlignment="Top"
+                MaxWidth="280">
+            
+            <!-- Metallic top accent line -->
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="0" BlurRadius="25" Color="#000000" Opacity="0.9"/>
+            </Border.Effect>
+            
+            <Grid>
+                <!-- Top metallic accent -->
+                <Border Height="2" VerticalAlignment="Top" CornerRadius="1" Margin="-16,-16,-16,0">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="Transparent" Offset="0"/>
+                            <GradientStop Color="#718096" Offset="0.3"/>
+                            <GradientStop Color="#C0C0C0" Offset="0.5"/>
+                            <GradientStop Color="#718096" Offset="0.7"/>
+                            <GradientStop Color="Transparent" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+                
+                <StackPanel Margin="0,4,0,0">
+                    <!-- Status Section -->
+                    <TextBlock Text="STATUS" 
+                               FontSize="10" 
+                               FontWeight="Bold" 
+                               Foreground="#606060"
+                               Margin="0,0,0,6"
+                               />
+                    
+                    <Border CornerRadius="4" 
+                            Padding="10,8" 
+                            Margin="0,0,0,12"
+                            Background="#0d0d0d"
+                            BorderThickness="1"
+                            BorderBrush="#2a2a2a">
+                        <TextBlock Text="{Binding StatusMessage}" 
+                                   FontSize="13"
+                                   FontWeight="Medium"
+                                   TextWrapping="Wrap"
+                                   Foreground="#E8E8E8">
+                            <TextBlock.Effect>
+                                <DropShadowEffect ShadowDepth="0" BlurRadius="4" Color="#C0C0C0" Opacity="0.3"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
+                    </Border>
+                    
+                    <!-- Unload Button -->
+                    <Button Content="🗑️  UNLOAD MODEL" 
+                            Command="{Binding UnloadModelCommand}"
+                            Style="{StaticResource PremiumMetallicButton}"
+                            HorizontalAlignment="Stretch"
+                            Visibility="{Binding IsModelLoaded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                 </StackPanel>
-            </Viewbox>
+            </Grid>
         </Border>
 
-        <!-- 3D Viewport -->
-        <hx:HelixViewport3D x:Name="viewport"
-                            Background="#1e1e1e"
-                            ZoomExtentsWhenLoaded="True"
-                            ShowViewCube="True"
-                            IsRotationEnabled="{Binding IsModelLoaded}"
-                            IsPanEnabled="{Binding IsModelLoaded}"
-                            IsZoomEnabled="{Binding IsModelLoaded}"
-                            AllowDrop="True">
-
-            <!-- Default lighting -->
-            <hx:DefaultLights/>
-
-        </hx:HelixViewport3D>
-
-        <!-- Status and Controls Overlay -->
-        <Border Background="#80000000" CornerRadius="5" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="10">
-            <StackPanel>
-                <TextBlock Text="{Binding StatusMessage}" Foreground="White" FontWeight="Bold"/>
-                <Button Content="🗑️ Unload Model" 
-                        Command="{Binding UnloadModelCommand}"
-                        Style="{StaticResource ModernButton}"
-                        Margin="0,5,0,0"
-                        Padding="10,5"
-                        Visibility="{Binding IsModelLoaded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-            </StackPanel>
-        </Border>
+        <!-- Corner accent decorations -->
+        <Canvas Panel.ZIndex="-1">
+            <!-- Top left accent -->
+            <Border Canvas.Left="0" Canvas.Top="0" Width="60" Height="60">
+                <Border.Background>
+                    <RadialGradientBrush>
+                        <GradientStop Color="#20C0C0C0" Offset="0"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+            
+            <!-- Bottom right accent -->
+            <Border Canvas.Right="0" Canvas.Bottom="0" Width="60" Height="60">
+                <Border.Background>
+                    <RadialGradientBrush>
+                        <GradientStop Color="#20C0C0C0" Offset="0"/>
+                        <GradientStop Color="Transparent" Offset="1"/>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+        </Canvas>
     </Grid>
 </UserControl>
