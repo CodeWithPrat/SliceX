@@ -11,90 +11,265 @@
         Height="900"
         Width="1600"
         WindowStartupLocation="CenterScreen"
-        Background="#1e1e1e"
-        Icon="/Resources/CMTILogo.ico">
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Icon="/Resources/CMTILogo.ico"
+        ResizeMode="CanResize"
+        RenderOptions.BitmapScalingMode="LowQuality"
+        UseLayoutRounding="True">
 
     <Window.Resources>
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <converters:BooleanToDragOverlayConverter x:Key="BooleanToDragOverlayConverter"/>
-        
-        <!-- Navigation Button Style (Only used in MainWindow) -->
+
+        <!-- Solid Colors for Performance -->
+        <SolidColorBrush x:Key="MetallicSilver" Color="#C0C0C0"/>
+        <SolidColorBrush x:Key="GamingButtonBg" Color="#1a1a1a"/>
+        <SolidColorBrush x:Key="HoverGlow" Color="#2a2a2a"/>
+        <SolidColorBrush x:Key="ActiveButtonBg" Color="#0d0d0d"/>
+        <SolidColorBrush x:Key="BorderAccent" Color="#404040"/>
+
+        <!-- Optimized Navigation Button Style -->
         <Style x:Key="NavButton" TargetType="Button">
-            <Setter Property="Background" Value="#2d2d30"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Background" Value="{StaticResource GamingButtonBg}"/>
+            <Setter Property="Foreground" Value="#C0C0C0"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderAccent}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="20,12"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4" 
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"
+                                            SnapsToDevicePixels="True"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource HoverGlow}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#606060"/>
+                                <Setter Property="Foreground" Value="#E8E8E8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource ActiveButtonBg}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#808080"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Optimized Title Bar Button Style -->
+        <Style x:Key="TitleBarButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#C0C0C0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="3" 
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"
+                                            SnapsToDevicePixels="True"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#3e3e42"/>
+                    <Setter Property="Background" Value="#2a2a2a"/>
+                    <Setter Property="Foreground" Value="#FFFFFF"/>
                 </Trigger>
                 <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#007ACC"/>
-                </Trigger>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Opacity" Value="0.5"/>
+                    <Setter Property="Background" Value="#3a3a3a"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <!-- Close Button Style -->
+        <Style x:Key="CloseButton" TargetType="Button" BasedOn="{StaticResource TitleBarButton}">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E81123"/>
+                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#C50F1F"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
     </Window.Resources>
 
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Border Background="#0a0a0a" 
+            BorderBrush="#1a1a1a" 
+            BorderThickness="1"
+            CornerRadius="6"
+            SnapsToDevicePixels="True">
+        
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-        <!-- Top Navigation Bar -->
-        <Border Grid.Row="0" Background="#252526" BorderBrush="#3f3f46" BorderThickness="0,0,0,1">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
-                <Button Content="🖥️ 3D View" Command="{Binding NavigateTo3DViewCommand}" 
-                        Style="{StaticResource NavButton}" Margin="5,0"/>
-                <Button Content="💻 GCode" Command="{Binding NavigateToGCodeCommand}" 
-                        Style="{StaticResource NavButton}" Margin="5,0"/>
-                <Button Content="👁️ Slice Viewer" Command="{Binding NavigateToSliceViewerCommand}" 
-                        Style="{StaticResource NavButton}" Margin="5,0"/>
-                <Button Content="⚙️ Machine Control" Command="{Binding NavigateToMachineControlCommand}" 
-                        Style="{StaticResource NavButton}" Margin="5,0"/>
-                <Button Content="🔧 Machine Config" Command="{Binding NavigateToMachineConfigCommand}" 
-                        Style="{StaticResource NavButton}" Margin="5,0"/>
-                <Button Content="⚡ Slice Profile" Command="{Binding NavigateToSliceProfileCommand}" 
-                        Style="{StaticResource NavButton}" Margin="5,0"/>
-            </StackPanel>
-        </Border>
+            <!-- Custom Title Bar -->
+            <Border Grid.Row="0" 
+                    Background="#0d0d0d" 
+                    BorderBrush="#2a2a2a"
+                    BorderThickness="0,0,0,1"
+                    CornerRadius="6,6,0,0"
+                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"
+                    SnapsToDevicePixels="True">
+                <Grid Height="32">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-        <!-- Main Content Area -->
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="400"/>
-                <ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+                    <!-- App Icon and Title -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="12,0,0,0">
+                        <Image Source="/Resources/CMTILogo.ico" 
+                               Width="18" 
+                               Height="18" 
+                               Margin="0,0,8,0" 
+                               VerticalAlignment="Center"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <TextBlock Text="SLICEX" 
+                                   Foreground="#C0C0C0"
+                                   FontSize="13" 
+                                   FontWeight="Bold"
+                                   FontFamily="Segoe UI"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,5,0"/>
+                        <TextBlock Text="3D PRINTING" 
+                                   Foreground="#707070"
+                                   FontSize="11" 
+                                   FontWeight="Normal"
+                                   FontFamily="Segoe UI"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
 
-            <!-- Left Sidebar - Fixed -->
-            <views:SidebarView Grid.Column="0" DataContext="{Binding}"/>
+                    <!-- Window Controls -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="─" 
+                                Style="{StaticResource TitleBarButton}" 
+                                Click="MinimizeButton_Click"
+                                FontSize="16"/>
+                        <Button Content="□" 
+                                Style="{StaticResource TitleBarButton}" 
+                                Click="MaximizeButton_Click"
+                                FontSize="14"/>
+                        <Button Content="✕" 
+                                Style="{StaticResource CloseButton}" 
+                                Click="CloseButton_Click"
+                                FontSize="16"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
 
-            <!-- Splitter -->
-            <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" Width="5" Background="#3f3f46"/>
+            <!-- Navigation Bar -->
+            <Border Grid.Row="1" 
+                    Background="#0d0d0d"
+                    BorderBrush="#2a2a2a"
+                    BorderThickness="0,0,0,1"
+                    SnapsToDevicePixels="True">
+                <Grid>
+                    <!-- Metallic accent line -->
+                    <Rectangle Height="1" 
+                               VerticalAlignment="Bottom" 
+                               Fill="#404040"
+                               Opacity="0.3"/>
+                    
+                    <StackPanel Orientation="Horizontal" 
+                                HorizontalAlignment="Center" 
+                                Margin="10,12,10,12">
+                        <Button Content="🖥️ 3D VIEW" 
+                                Command="{Binding NavigateTo3DViewCommand}" 
+                                Style="{StaticResource NavButton}" 
+                                Margin="6,0"/>
+                        <Button Content="💻 GCODE" 
+                                Command="{Binding NavigateToGCodeCommand}" 
+                                Style="{StaticResource NavButton}" 
+                                Margin="6,0"/>
+                        <Button Content="👁️ SLICE VIEWER" 
+                                Command="{Binding NavigateToSliceViewerCommand}" 
+                                Style="{StaticResource NavButton}" 
+                                Margin="6,0"/>
+                        <Button Content="⚙️ MACHINE CONTROL" 
+                                Command="{Binding NavigateToMachineControlCommand}" 
+                                Style="{StaticResource NavButton}" 
+                                Margin="6,0"/>
+                        <Button Content="🔧 MACHINE CONFIG" 
+                                Command="{Binding NavigateToMachineConfigCommand}" 
+                                Style="{StaticResource NavButton}" 
+                                Margin="6,0"/>
+                        <Button Content="⚡ SLICE PROFILE" 
+                                Command="{Binding NavigateToSliceProfileCommand}" 
+                                Style="{StaticResource NavButton}" 
+                                Margin="6,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
 
-            <!-- Right Content Area -->
-            <ContentControl Grid.Column="2" Content="{Binding CurrentView}"/>
+            <!-- Main Content Area -->
+            <Grid Grid.Row="2" Background="#0f0f0f">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="400"/>
+                    <ColumnDefinition Width="5"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left Sidebar -->
+                <Border Grid.Column="0" 
+                        Background="#121212"
+                        BorderBrush="#2a2a2a"
+                        BorderThickness="0,0,1,0"
+                        SnapsToDevicePixels="True">
+                    <views:SidebarView DataContext="{Binding}"/>
+                </Border>
+
+                <!-- Splitter -->
+                <Border Grid.Column="1" Background="#1a1a1a">
+                    <GridSplitter HorizontalAlignment="Stretch" 
+                                  Width="5" 
+                                  Background="#1a1a1a"/>
+                </Border>
+
+                <!-- Right Content Area -->
+                <Border Grid.Column="2" 
+                        Background="#0f0f0f"
+                        CornerRadius="0,0,6,0"
+                        SnapsToDevicePixels="True">
+                    <ContentControl Content="{Binding CurrentView}"/>
+                </Border>
+            </Grid>
         </Grid>
-    </Grid>
+    </Border>
 </Window>
